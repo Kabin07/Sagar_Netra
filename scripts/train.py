@@ -36,6 +36,10 @@ def main():
     parser.add_argument("--patience", type=int, default=12)
     parser.add_argument("--cos-lr", action="store_true", help="cosine learning-rate schedule")
     parser.add_argument("--close-mosaic", type=int, default=10, help="disable mosaic for the last N epochs")
+    parser.add_argument("--optimizer", default="auto",
+                        help="auto picks a from-scratch rate (lr0=0.01) for long runs; use AdamW + a small --lr0 to fine-tune")
+    parser.add_argument("--lr0", type=float, default=0.01, help="initial learning rate (ignored when --optimizer auto)")
+    parser.add_argument("--warmup-epochs", type=float, default=3.0)
     args = parser.parse_args()
 
     data_yaml = Path(args.data).resolve()
@@ -73,6 +77,9 @@ def main():
         val=True,
         close_mosaic=args.close_mosaic,
         cos_lr=args.cos_lr,
+        optimizer=args.optimizer,
+        lr0=args.lr0,
+        warmup_epochs=args.warmup_epochs,
     )
 
     best = ROOT / "runs" / args.name / "weights" / "best.pt"
