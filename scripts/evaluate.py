@@ -13,7 +13,18 @@ import json
 import time
 from pathlib import Path
 
+import yaml
 from ultralytics import YOLO
+
+
+def dataset_root(data_yaml):
+    """Directory holding images/ and labels/: the yaml's `path:` key, else the yaml's own folder."""
+    data_yaml = Path(data_yaml)
+    root = (yaml.safe_load(data_yaml.read_text(encoding="utf-8")) or {}).get("path")
+    if not root:
+        return data_yaml.parent
+    root = Path(root)
+    return root if root.is_absolute() else data_yaml.parent / root
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -55,7 +66,7 @@ def main():
         })
     # instance counts per class from the validation labels
     counts = {}
-    for lbl in (Path(args.data).parent / "labels" / "val").glob("*.txt"):
+    for lbl in (dataset_root(args.data) / "labels" / "val").glob("*.txt"):
         for line in lbl.read_text().splitlines():
             if line.strip():
                 k = int(line.split()[0])
@@ -66,7 +77,7 @@ def main():
     result = {
         "weights": Path(args.weights).name,
         "imgsz": args.imgsz,
-        "val_images": len(list((Path(args.data).parent / "images" / "val").glob("*"))),
+        "val_images": len(list((dataset_root(args.data) / "images" / "val").glob("*"))),
         "val_instances": sum(counts.values()),
         "box": summary(m.box),
         "mask": summary(m.seg),
