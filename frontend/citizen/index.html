@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#04141f">
+<title>SAGAR-NETRA · Report Debris</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --bg:#04141f; --bg2:#0a2233; --card:#0e2b3f; --line:#17415c;
+  --ink:#eaf6fb; --mut:#8fb3c7;
+  --cyan:#22d3ee; --teal:#0e7490; --coral:#fb7185; --amber:#fbbf24; --green:#34d399;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom);
+  min-height:100dvh;
+}
+header{
+  position:sticky;top:0;z-index:20;
+  background:rgba(4,20,31,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+  display:flex;align-items:center;gap:12px;
+}
+.logo{width:34px;height:34px;flex:none}
+.brand{font-weight:700;letter-spacing:.5px;font-size:17px}
+.brand{margin-right:auto}
+.brand small{display:block;font-weight:400;font-size:11px;color:var(--mut);letter-spacing:.3px}
+select.lang{
+  margin-left:0;background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:13px
+}
+main{padding:16px;max-width:560px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h2{font-size:15px;margin:0 0 10px;letter-spacing:.3px}
+.hint{color:var(--mut);font-size:13px;margin:0 0 14px}
+
+.shoot{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:30px 16px;cursor:pointer;
+  background:linear-gradient(160deg,#103b54,#0b2a3d);
+  border:2px dashed var(--teal);border-radius:14px;color:var(--ink);
+  font-size:16px;font-weight:600;
+}
+.shoot:active{transform:scale(.99)}
+.shoot svg{width:44px;height:44px;stroke:var(--cyan)}
+input[type=file]{display:none}
+
+.shot{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#000}
+.shot canvas{display:block;width:100%;height:auto}
+.tog{display:flex;gap:8px;margin:10px 0 0}
+.tog button{
+  flex:1;padding:9px;border-radius:9px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--mut);font-size:13px;font-weight:600;cursor:pointer
+}
+.tog button.on{background:var(--teal);color:#fff;border-color:var(--cyan)}
+.enh-note{font-size:11.5px;color:var(--mut);margin-top:8px;line-height:1.45}
+
+.row{display:flex;gap:10px;align-items:center;margin-top:12px}
+.row svg{width:17px;height:17px;stroke:var(--cyan);flex:none;fill:none}
+.row .val{font-size:13.5px;color:var(--mut);flex:1;word-break:break-word}
+textarea,input[type=text]{
+  width:100%;margin-top:10px;background:var(--bg2);color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;font-size:14px;resize:vertical
+}
+.btn{
+  width:100%;margin-top:14px;padding:15px;border:0;border-radius:12px;
+  background:var(--cyan);color:#04141f;font-size:16px;font-weight:700;cursor:pointer
+}
+.btn:disabled{background:#245266;color:#68899b;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--mut);font-weight:600;font-size:14px;padding:12px}
+
+.det{display:flex;align-items:center;gap:10px;padding:11px;border-radius:10px;background:var(--bg2);margin-bottom:8px}
+.pill{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;margin-left:auto}
+.sev-high{background:#4c1d24;color:var(--coral)}
+.sev-med{background:#4a3a12;color:var(--amber)}
+.sev-low{background:#12402f;color:var(--green)}
+.dot{width:9px;height:9px;border-radius:99px;flex:none}
+.ok{text-align:center;padding:26px 12px}
+.ok svg{width:56px;height:56px;stroke:var(--green);margin-bottom:10px;fill:none}
+.ok h3{margin:0 0 6px;font-size:19px}
+.ok p{margin:0;color:var(--mut);font-size:14px}
+.ref{font-family:ui-monospace,monospace;color:var(--cyan);font-size:13px;margin-top:10px}
+
+.rep{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center}
+.rep:last-child{border-bottom:0}
+.rep img{width:52px;height:52px;border-radius:9px;object-fit:cover;flex:none;background:#000}
+.rep .m{flex:1;min-width:0}
+.rep .t{font-size:13.5px;font-weight:600}
+.rep .s{font-size:11.5px;color:var(--mut);margin-top:2px}
+.stat{font-size:10.5px;font-weight:700;padding:3px 7px;border-radius:99px;align-self:flex-start}
+.st-sent{background:#123044;color:var(--cyan)}
+.st-ack{background:#4a3a12;color:var(--amber)}
+.st-res{background:#12402f;color:var(--green)}
+.empty{color:var(--mut);font-size:13.5px;text-align:center;padding:18px 0}
+.hide{display:none!important}
+.spin{width:17px;height:17px;border:2px solid rgba(255,255,255,.27);border-top-color:#04141f;border-radius:99px;display:inline-block;animation:sp .7s linear infinite;vertical-align:-3px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.who{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);margin-left:8px}
+.coords{display:flex;gap:8px}.coords input{margin-top:8px}
+input.bad{border-color:var(--coral)!important}
+.linkbtn{background:none;border:0;color:var(--cyan);font-size:12.5px;cursor:pointer;padding:6px 0;text-decoration:underline}
+.err{color:var(--coral);font-size:13px;margin-top:10px}
+.warn{color:var(--amber);font-size:12.5px;margin-top:8px}
+.ann{width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:8px 0;background:#000}
+.cls{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--mut)}
+.pill.sev-none{background:#1d3342;color:var(--mut)}
+.rep{cursor:default}
+footer{text-align:center;color:var(--mut);font-size:11px;padding:18px 16px 30px;line-height:1.6}
+
+/* sign-in gate: content stays hidden until the server confirms a session */
+body:not(.sn-authed) .sn-protected{display:none!important}
+.sn-gate{max-width:620px;margin:48px auto;padding:18px 20px;background:var(--panel,#0a2030);border:1px solid var(--line,#17415c);
+  border-radius:14px;color:var(--mut,#8fb3c7);font-size:13.5px;line-height:1.6;text-align:center}
+.sn-gate b{color:var(--ink,#eaf6fb)} .sn-gate a{color:var(--cyan,#22d3ee)}
+body.sn-authed .sn-gate,.sn-gate:empty{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="21" stroke="#22d3ee" stroke-width="2.5"/>
+    <path d="M6 26c5-4 8 4 13 0s8 4 13 0 6 3 10 0" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="24" cy="18" r="5" stroke="#22d3ee" stroke-width="2.5"/>
+  </svg>
+  <div class="brand">SAGAR-NETRA<small data-i="tagline">Citizen Debris Reporting</small></div>
+  <span class="who" id="who"></span>
+  <select class="lang" id="lang" style="margin-left:8px">
+    <option value="en">EN</option><option value="hi">हिं</option>
+    <option value="ta">தமிழ்</option><option value="ml">മലയാളം</option>
+  </select>
+</header>
+
+<div id="snGate" class="sn-gate"><b>Sign-in required.</b> Open this page through the SAGAR-NETRA server and <a href="../login/">sign in</a> (e.g. http://127.0.0.1:4000/login/).</div>
+<main class="sn-protected">
+
+<section id="s1" class="card">
+  <h2 data-i="t1">Report marine debris</h2>
+  <p class="hint" data-i="h1">Photograph ghost nets, plastic or debris you see at sea or on the shore. Your report goes straight to the coastal authority.</p>
+  <label class="shoot" for="cam">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+      <circle cx="12" cy="13" r="4"/>
+    </svg>
+    <span data-i="btncam">Take a photo</span>
+  </label>
+  <input type="file" id="cam" accept="image/*" capture="environment">
+  <button class="btn ghost" id="pick" data-i="btnpick" style="margin-top:10px">Choose from gallery</button>
+</section>
+
+<section id="s2" class="card hide">
+  <h2 data-i="t2">Check your photo</h2>
+  <div class="shot"><canvas id="cv"></canvas></div>
+  <div class="tog">
+    <button id="bRaw" data-i="raw">Original</button>
+    <button id="bEnh" class="on" data-i="enh">Enhanced</button>
+  </div>
+  <p class="enh-note" data-i="enhnote">Enhanced view applies white-balance and contrast correction for easier viewing. The detection model analyses your original photo.</p>
+
+  <div class="row">
+    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span class="val" id="geo" data-i="geowait">Getting location…</span>
+  </div>
+  <div class="row">
+    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span class="val" id="tstamp">—</span>
+  </div>
+  <button type="button" class="linkbtn" id="manToggle">Enter coordinates manually</button>
+  <div id="manBox" class="hide">
+    <div class="coords">
+      <input type="text" id="manlat" inputmode="decimal" placeholder="Latitude e.g. 13.0827" aria-label="Latitude">
+      <input type="text" id="manlng" inputmode="decimal" placeholder="Longitude e.g. 80.2707" aria-label="Longitude">
+    </div>
+  </div>
+  <input type="text" id="manloc" maxlength="200" placeholder="Place name / landmark (optional)">
+  <textarea id="note" rows="2" data-ph="phnote" placeholder="Add a note (optional) — e.g. floating net near rocks"></textarea>
+  <div class="err hide" id="sendErr" role="alert"></div>
+  <button class="btn" id="send" data-i="btnsend">Send report</button>
+  <button class="btn ghost" id="again" data-i="btnretake">Retake</button>
+</section>
+
+<section id="s3" class="card hide">
+  <div class="ok">
+    <svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1"/><path d="M22 4 12 14.01l-3-3"/></svg>
+    <h3 data-i="okt">Report sent</h3>
+    <p data-i="okp">Your report is saved and visible to the coastal authority.</p>
+    <div class="ref" id="ref">—</div>
+  </div>
+  <div id="dets"></div>
+  <button class="btn" id="newrep" data-i="btnnew">Report another</button>
+</section>
+
+<section class="card">
+  <h2 data-i="t3">My reports</h2>
+  <div id="hist"><div class="empty" data-i="none">No reports yet.</div></div>
+</section>
+
+<footer>
+  SAGAR-NETRA · AI ghost-net &amp; marine debris detection<br>
+  <span style="opacity:.65" data-i="proto">Detections come from the trained SAGAR-NETRA model. Map tiles © OpenStreetMap contributors.</span>
+</footer>
+</main>
+
+<script src="../shared/sn-client.js"></script>
+<script>
+/* ---------------- i18n ---------------- */
+var I = {
+ en:{tagline:"Citizen Debris Reporting",t1:"Report marine debris",h1:"Photograph ghost nets, plastic or debris you see at sea or on the shore. Your report goes straight to the coastal authority.",btncam:"Take a photo",btnpick:"Choose from gallery",t2:"Check your photo",raw:"Original",enh:"Enhanced",enhnote:"Enhanced view applies white-balance and contrast correction for easier viewing. The detection model analyses your original photo.",geowait:"Getting location…",phnote:"Add a note (optional) — e.g. floating net near rocks",btnsend:"Send report",btnretake:"Retake",okt:"Report sent",okp:"Your report is saved and visible to the coastal authority.",btnnew:"Report another",t3:"My reports",none:"No reports yet.",proto:"Detections come from the trained SAGAR-NETRA model. Map tiles © OpenStreetMap contributors.",sending:"Sending…",found:"Detected in your photo",signin:"Sign in to send reports",manual:"Enter coordinates manually",needloc:"A location is required: allow location access or enter latitude and longitude.",badloc:"Latitude must be between -90 and 90 and longitude between -180 and 180.",uploading:"Uploading",analysing:"Analysing photo…",failed:"Report saved, but the photo could not be analysed",retry:"Retry analysis",notsent:"Report NOT sent",nodebris:"No objects detected in this photo.",notdebris:"NOT DEBRIS",loading:"Loading…"},
+ hi:{tagline:"नागरिक कचरा रिपोर्टिंग",t1:"समुद्री कचरे की सूचना दें",h1:"समुद्र या तट पर दिखे जाल, प्लास्टिक या कचरे की फ़ोटो लें। आपकी रिपोर्ट सीधे तटीय अधिकारी को जाएगी।",btncam:"फ़ोटो लें",btnpick:"गैलरी से चुनें",t2:"अपनी फ़ोटो जाँचें",raw:"मूल",enh:"सुधारित",geowait:"स्थान लिया जा रहा है…",phnote:"टिप्पणी जोड़ें (वैकल्पिक)",btnsend:"रिपोर्ट भेजें",btnretake:"दोबारा लें",okt:"रिपोर्ट भेजी गई",btnnew:"नई रिपोर्ट",t3:"मेरी रिपोर्ट",none:"अभी कोई रिपोर्ट नहीं।",sending:"भेजा जा रहा है…",found:"आपकी फ़ोटो में मिला"},
+ ta:{tagline:"குடிமக்கள் கழிவு அறிக்கை",t1:"கடல் கழிவைப் புகாரளியுங்கள்",h1:"கடலிலோ கரையிலோ காணும் வலை, பிளாஸ்டிக் அல்லது கழிவைப் புகைப்படம் எடுக்கவும். உங்கள் அறிக்கை நேரடியாக கடலோர அதிகாரிக்குச் செல்லும்.",btncam:"புகைப்படம் எடு",btnpick:"கேலரியில் இருந்து",t2:"படத்தைச் சரிபார்க்கவும்",raw:"அசல்",enh:"மேம்படுத்தப்பட்டது",geowait:"இருப்பிடம் பெறப்படுகிறது…",phnote:"குறிப்பு சேர்க்கவும் (விருப்பம்)",btnsend:"அறிக்கை அனுப்பு",btnretake:"மீண்டும் எடு",okt:"அறிக்கை அனுப்பப்பட்டது",btnnew:"மற்றொரு அறிக்கை",t3:"என் அறிக்கைகள்",none:"இதுவரை அறிக்கை இல்லை.",sending:"அனுப்புகிறது…",found:"உங்கள் படத்தில் கண்டறியப்பட்டது"},
+ ml:{tagline:"പൗര മാലിന്യ റിപ്പോർട്ട്",t1:"സമുദ്ര മാലിന്യം റിപ്പോർട്ട് ചെയ്യുക",h1:"കടലിലോ തീരത്തോ കാണുന്ന വല, പ്ലാസ്റ്റിക് അല്ലെങ്കിൽ മാലിന്യം ഫോട്ടോ എടുക്കുക. നിങ്ങളുടെ റിപ്പോർട്ട് നേരിട്ട് തീരദേശ അധികാരിക്ക് പോകും.",btncam:"ഫോട്ടോ എടുക്കുക",btnpick:"ഗാലറിയിൽ നിന്ന്",t2:"ഫോട്ടോ പരിശോധിക്കുക",raw:"യഥാർത്ഥം",enh:"മെച്ചപ്പെടുത്തി",geowait:"സ്ഥാനം എടുക്കുന്നു…",phnote:"കുറിപ്പ് ചേർക്കുക (ഓപ്ഷണൽ)",btnsend:"റിപ്പോർട്ട് അയക്കുക",btnretake:"വീണ്ടും എടുക്കുക",okt:"റിപ്പോർട്ട് അയച്ചു",btnnew:"മറ്റൊരു റിപ്പോർട്ട്",t3:"എന്റെ റിപ്പോർട്ടുകൾ",none:"റിപ്പോർട്ടുകളൊന്നുമില്ല.",sending:"അയക്കുന്നു…",found:"നിങ്ങളുടെ ഫോട്ടോയിൽ കണ്ടെത്തി"}
+};
+var L = "en";
+var $ = function(id){ return document.getElementById(id); };
+
+function tr(){
+  var d = I[L];
+  var els = document.querySelectorAll("[data-i]");
+  for (var i=0;i<els.length;i++){ var k = els[i].getAttribute("data-i"); if (d[k] || I.en[k]) els[i].textContent = d[k] || I.en[k]; }
+  var ph = document.querySelectorAll("[data-ph]");
+  for (var j=0;j<ph.length;j++){ var k2 = ph[j].getAttribute("data-ph"); if (d[k2] || I.en[k2]) ph[j].placeholder = d[k2] || I.en[k2]; }
+  document.documentElement.lang = L;
+}
+try { if (localStorage.sn_lang && I[localStorage.sn_lang]){ L = localStorage.sn_lang; $("lang").value = L; } } catch(x){}
+function t(k){ return I[L][k] || I.en[k] || k; }
+$("lang").onchange = function(e){ L = e.target.value; try { localStorage.sn_lang = L; } catch(x){} tr(); if (SN.user()) hist(); };
+tr();
+
+/* ---------------- capture ---------------- */
+var cv = $("cv"), ctx = cv.getContext("2d", {willReadFrequently:true});
+var raw = null, mode = "enh", shotTime = new Date();
+
+$("pick").onclick = function(){
+  var c = $("cam");
+  c.removeAttribute("capture");
+  c.click();
+  setTimeout(function(){ c.setAttribute("capture","environment"); }, 500);
+};
+
+$("cam").onchange = function(e){
+  var f = e.target.files[0];
+  if (!f) return;
+  var img = new Image();
+  img.onload = function(){
+    var M = 1280, s = Math.min(1, M/Math.max(img.width,img.height));
+    cv.width  = Math.round(img.width  * s);
+    cv.height = Math.round(img.height * s);
+    ctx.drawImage(img, 0, 0, cv.width, cv.height);
+    raw = ctx.getImageData(0, 0, cv.width, cv.height);
+    render();
+    step(2);
+    locate();
+    shotTime = new Date();
+    $("tstamp").textContent = shotTime.toLocaleString();
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(f);
+};
+
+/* Underwater enhancement preview: gray-world white balance + per-channel
+   percentile contrast stretch. Approximates the CLAHE + WB stage that runs
+   in OpenCV server-side, so the user sees what the model actually receives. */
+function enhance(src){
+  var d = new Uint8ClampedArray(src.data), n = d.length, px = n/4;
+  var sr=0, sg=0, sb=0, i, c, v;
+  for (i=0;i<n;i+=4){ sr+=d[i]; sg+=d[i+1]; sb+=d[i+2]; }
+  var ar=sr/px, ag=sg/px, ab=sb/px, avg=(ar+ag+ab)/3;
+  var kr=avg/(ar||1), kg=avg/(ag||1), kb=avg/(ab||1);
+  for (i=0;i<n;i+=4){ d[i]*=kr; d[i+1]*=kg; d[i+2]*=kb; }
+  for (c=0;c<3;c++){
+    var h = new Uint32Array(256);
+    for (i=c;i<n;i+=4) h[d[i]]++;
+    var lo=0, hi=255, acc=0, cut=px*0.01;
+    for (v=0;v<256;v++){ acc+=h[v]; if (acc>cut){ lo=v; break; } }
+    acc=0;
+    for (v=255;v>=0;v--){ acc+=h[v]; if (acc>cut){ hi=v; break; } }
+    var r = Math.max(1, hi-lo);
+    for (i=c;i<n;i+=4) d[i] = (d[i]-lo)*255/r;
+  }
+  return new ImageData(d, src.width, src.height);
+}
+function render(){ if (!raw) return; ctx.putImageData(mode==="enh" ? enhance(raw) : raw, 0, 0); }
+$("bRaw").onclick = function(){ mode="raw"; $("bRaw").classList.add("on"); $("bEnh").classList.remove("on"); render(); };
+$("bEnh").onclick = function(){ mode="enh"; $("bEnh").classList.add("on"); $("bRaw").classList.remove("on"); render(); };
+
+/* ---------------- geolocation ----------------
+   Browser GPS gives the phone's position. Manual latitude/longitude is always
+   available (and required when GPS is denied or unavailable). */
+var coords = null;
+var esc = SN.esc;
+function showManual(){ $("manBox").classList.remove("hide"); $("manToggle").classList.add("hide"); }
+$("manToggle").onclick = function(){ showManual(); $("manlat").focus(); };
+["manlat","manlng"].forEach(function(id){ $(id).addEventListener("input", function(){ $(id).classList.remove("bad"); }); });
+function locate(){
+  var g = $("geo");
+  coords = null;
+  if (!navigator.geolocation){
+    g.textContent = "Location unavailable — enter coordinates below";
+    showManual();
+    return;
+  }
+  g.textContent = t("geowait");
+  navigator.geolocation.getCurrentPosition(
+    function(p){
+      coords = {
+        lat: +p.coords.latitude.toFixed(6),
+        lng: +p.coords.longitude.toFixed(6),
+        acc: Math.round(p.coords.accuracy)
+      };
+      g.textContent = coords.lat + ", " + coords.lng + "  (±" + coords.acc + " m)";
+    },
+    function(){
+      g.textContent = "Location denied — enter coordinates below";
+      showManual();
+    },
+    {enableHighAccuracy:true, timeout:10000}
+  );
+}
+function decimal(s){
+  s = String(s || "").trim().replace(",", ".");
+  return /^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(s) ? Number(s) : NaN;
+}
+/* Manual entry wins when filled in; otherwise the GPS fix is used. */
+function chosenLocation(){
+  var la = $("manlat").value.trim(), lo = $("manlng").value.trim();
+  if (la || lo){
+    var lat = decimal(la), lng = decimal(lo);
+    var ok = lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+    $("manlat").classList.toggle("bad", !(lat >= -90 && lat <= 90));
+    $("manlng").classList.toggle("bad", !(lng >= -180 && lng <= 180));
+    return ok ? {lat:lat, lng:lng, acc:null, source:"manual"} : {error:t("badloc")};
+  }
+  if (coords) return {lat:coords.lat, lng:coords.lng, acc:coords.acc, source:"browser_gps"};
+  showManual();
+  return {error:t("needloc")};
+}
+
+/* ---------------- steps ---------------- */
+function step(n){
+  [1,2,3].forEach(function(i){ $("s"+i).classList.toggle("hide", i!==n); });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+$("again").onclick  = function(){ step(1); };
+$("newrep").onclick = function(){ step(1); };
+
+/* ---------------- submit ----------------
+   Posts to the SAGAR-NETRA API. There is no simulated fallback: if the server
+   cannot be reached, the user is told the report was NOT sent and can retry. */
+
+/* The model was trained on RAW frames, so send the ORIGINAL pixels, not the
+   enhanced preview — enhancing before detection measurably lowers recall. */
+function rawBlob(cb){
+  var tc = document.createElement("canvas");
+  tc.width = cv.width; tc.height = cv.height;
+  tc.getContext("2d").putImageData(raw, 0, 0);
+  tc.toBlob(cb, "image/jpeg", 0.9);
+}
+
+function sendErr(msg){
+  $("sendErr").classList.toggle("hide", !msg);
+  $("sendErr").textContent = msg || "";
+}
+
+function sevOf(d){ return d.is_debris ? d.severity : "none"; }
+function detHtml(d){
+  var sev = sevOf(d);
+  var col = sev==="high" ? "var(--coral)" : sev==="med" ? "var(--amber)" : sev==="low" ? "var(--green)" : "var(--mut)";
+  return '<div class="det"><span class="dot" style="background:'+col+'"></span>' +
+    '<span>'+esc(SN.label(d.type_name))+' <span class="cls">'+esc(d.type_name)+'</span></span>' +
+    '<span style="color:var(--mut);font-size:12.5px">'+SN.fmtPct(d.confidence)+'</span>' +
+    '<span class="pill sev-'+sev+'">'+(d.is_debris ? sev.toUpperCase() : t("notdebris"))+'</span></div>';
+}
+
+function showResult(report){
+  $("ref").textContent = "Ref SN-" + String(report.report_id).padStart(5, "0");
+  var img = report.images[0], st = report.inference_status, html = "";
+  if (img && img.annotated_url) html += '<img class="ann" alt="" src="'+esc(SN.base + img.annotated_url)+'">';
+  if (st === "completed"){
+    html += '<h2 style="margin-top:6px">' + t("found") + '</h2>' +
+      (report.detections.length ? report.detections.map(detHtml).join("") : '<div class="det" style="color:var(--mut)">'+t("nodebris")+'</div>') +
+      '<div style="font-size:11px;color:var(--mut);margin-top:8px;text-align:center">Analysed by SAGAR-NETRA YOLOv8n-seg model</div>';
+  } else {
+    html += '<div class="warn">' + t("failed") + ': ' + esc(img ? img.inference_error : "") + '</div>' +
+      '<button class="btn ghost" id="retry">' + t("retry") + '</button>';
+  }
+  $("dets").innerHTML = html;
+  if ($("retry")) $("retry").onclick = function(){
+    var r = $("retry"); r.disabled = true; r.textContent = t("analysing");
+    SN.api("/api/reports/" + report.report_id + "/reprocess", {method:"POST"})
+      .then(function(res){ showResult(res.report); hist(); },
+            function(e){ r.disabled = false; r.textContent = t("retry"); alert(e.message); });
+  };
+}
+
+function resetSend(){
+  var b = $("send");
+  b.disabled = false;
+  b.textContent = t("btnsend");
+}
+
+$("send").onclick = function(){
+  sendErr("");
+  if (!SN.user()){ start(); return; }
+  var loc = chosenLocation();
+  if (loc.error){ sendErr(loc.error); return; }
+  var b = $("send");
+  b.disabled = true;
+  b.innerHTML = '<span class="spin"></span>' + t("sending");
+
+  rawBlob(function(blob){
+    if (!blob){ resetSend(); sendErr(t("notsent") + ": could not read the photo."); return; }
+    var fd = new FormData();
+    fd.append("images", blob, "report.jpg");
+    fd.append("latitude", String(loc.lat));
+    fd.append("longitude", String(loc.lng));
+    fd.append("location_source", loc.source);
+    if (loc.acc != null) fd.append("position_accuracy_m", String(loc.acc));
+    fd.append("source_channel", "citizen");
+    fd.append("observed_at", shotTime.toISOString());
+    var note = $("note").value.trim(), site = $("manloc").value.trim();
+    if (note) fd.append("comments", note);
+    if (site) fd.append("site_name", site);
+    fd.append("details", JSON.stringify({language: L}));
+
+    SN.upload("/api/reports", fd, function(f){
+      b.innerHTML = '<span class="spin"></span>' + (f < 1 ? t("uploading") + " " + Math.round(f*100) + "%" : t("analysing"));
+    }).then(function(res){
+      resetSend();
+      $("note").value = ""; $("manloc").value = ""; $("manlat").value = ""; $("manlng").value = "";
+      showResult(res.report);
+      step(3);
+      hist();
+    }, function(e){
+      resetSend();
+      sendErr(t("notsent") + ": " + e.message);
+      if (e.status === 401) start();
+    });
+  });
+};
+
+/* ---------------- history (from the server) ---------------- */
+function hist(){
+  var h = $("hist");
+  h.innerHTML = '<div class="empty">' + t("loading") + '</div>';
+  SN.api("/api/reports?limit=25").then(function(res){
+    if (!res.reports.length){ h.innerHTML = '<div class="empty">' + t("none") + '</div>'; return; }
+    h.innerHTML = res.reports.map(function(r){
+      var top = r.summary.top;
+      var title = r.inference_status === "failed" ? "Analysis failed" :
+        top ? SN.label(top.type_name) + " · " + SN.fmtPct(top.confidence) : "No objects detected";
+      var st = r.review_status==="resolved" ? "st-res" : r.review_status==="assigned" ? "st-ack" : "st-sent";
+      var where = r.site_name || (Number(r.latitude).toFixed(4) + ", " + Number(r.longitude).toFixed(4));
+      return '<div class="rep"><img loading="lazy" src="'+esc(SN.base + r.image_url)+'" alt="">' +
+        '<div class="m"><div class="t">'+esc(title)+'</div>' +
+        '<div class="s">SN-'+String(r.report_id).padStart(5,"0")+' · '+new Date(r.upload_time).toLocaleDateString()+' · '+esc(where)+'</div></div>' +
+        '<span class="stat '+st+'">'+esc(r.review_status.toUpperCase())+'</span></div>';
+    }).join("");
+  }, function(e){
+    h.innerHTML = '<div class="empty">' + esc(e.message) + '</div>';
+  });
+}
+
+/* ---------------- session ---------------- */
+function start(){
+  SN.requireLogin({
+    onReady: function(u){
+      $("who").innerHTML = "";
+      $("who").appendChild(SN.userBadge(u));
+      hist();
+    }
+  });
+}
+start();
+
+if ("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+}
+</script>
+</body>
+</html>

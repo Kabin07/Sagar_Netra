@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAGAR-NETRA · Dive Survey Reporting</title>
+<style>
+:root{
+  --bg:#03101a; --panel:#0a2030; --card:#0e2b3f; --line:#17415c;
+  --ink:#eaf6fb; --mut:#8fb3c7; --mut2:#5f8298;
+  --cyan:#22d3ee; --teal:#0e7490; --coral:#fb7185; --amber:#fbbf24; --green:#34d399; --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);
+  font:14px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+
+header{display:flex;align-items:center;gap:14px;padding:12px 22px;
+  background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30}
+.logo{width:30px;height:30px;flex:none}
+.brand{font-weight:700;font-size:15.5px;letter-spacing:.4px;line-height:1.2}
+.brand small{display:block;font-weight:400;font-size:10.5px;color:var(--mut)}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mut)}
+.av{width:30px;height:30px;border-radius:99px;background:var(--teal);display:grid;place-items:center;font-weight:700;color:#fff;font-size:12px}
+.badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;background:#20304a;color:var(--violet);letter-spacing:.4px}
+
+.page{max-width:1140px;margin:0 auto;padding:22px}
+h2{font-size:16px;margin:0 0 6px;letter-spacing:.3px}
+.sub{color:var(--mut);font-size:12.5px;margin:0 0 18px}
+h3{font-size:12px;margin:22px 0 10px;letter-spacing:.6px;color:var(--cyan);font-weight:700}
+h3:first-of-type{margin-top:0}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:16px}
+
+/* upload */
+.drop{border:2px dashed var(--teal);border-radius:14px;padding:34px 20px;text-align:center;
+  background:linear-gradient(160deg,#103b54,#0b2a3d);cursor:pointer}
+.drop.hot{border-color:var(--cyan);background:#14465f}
+.drop svg{width:40px;height:40px;stroke:var(--cyan);fill:none;margin-bottom:8px}
+.drop b{display:block;font-size:15px;margin-bottom:4px}
+.drop small{color:var(--mut)}
+input[type=file]{display:none}
+
+.mode{display:flex;gap:8px;margin-top:12px}
+.mode button{flex:1;padding:10px;border-radius:9px;border:1px solid var(--line);
+  background:var(--card);color:var(--mut);font-size:12.5px;font-weight:600;cursor:pointer;text-align:left;padding-left:13px}
+.mode button.on{background:var(--teal);color:#fff;border-color:var(--cyan)}
+.mode button span{display:block;font-size:10.5px;font-weight:400;opacity:.85;margin-top:2px}
+
+/* thumbs */
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:14px}
+.th{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#000}
+.th canvas{width:100%;display:block}
+.th .x{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:99px;border:0;
+  background:rgba(3,16,26,.8);color:#fff;font-size:14px;cursor:pointer;line-height:1}
+.th .nm{position:absolute;left:0;right:0;bottom:0;background:rgba(3,16,26,.85);
+  font-size:9.5px;padding:3px 5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th .ex{position:absolute;top:5px;left:5px;font-size:9px;font-weight:700;padding:2px 5px;
+  border-radius:99px;background:rgba(52,211,153,.9);color:#04141f}
+
+/* form */
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px}
+.f{display:flex;flex-direction:column;gap:5px}
+.f.wide{grid-column:1/-1}
+.f label{font-size:11px;color:var(--mut);letter-spacing:.4px;font-weight:600}
+.f input,.f select,.f textarea{
+  background:var(--card);border:1px solid var(--line);border-radius:9px;padding:9px 10px;
+  color:var(--ink);font:inherit;font-size:13px;width:100%}
+.f textarea{resize:vertical;min-height:64px}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--cyan)}
+.f .hint{font-size:10.5px;color:var(--mut2)}
+.chk{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink);cursor:pointer}
+.chk input{accent-color:var(--cyan);width:16px;height:16px;flex:none}
+.chks{display:flex;flex-direction:column;gap:9px}
+.mini{background:var(--card);border:1px solid var(--line);color:var(--cyan);
+  padding:8px 12px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--cyan)}
+.exifnote{font-size:11.5px;color:var(--green);margin-left:10px}
+
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{padding:13px 20px;border:0;border-radius:11px;background:var(--cyan);color:#04141f;
+  font-size:14.5px;font-weight:700;cursor:pointer}
+.btn:disabled{background:#245266;color:#68899b;cursor:not-allowed}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--mut);font-weight:600}
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#04141f;
+  border-radius:99px;display:inline-block;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:7px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* results / history */
+.res{border:1px solid #17694f;background:#0d3b2e;border-radius:12px;padding:14px;margin-bottom:14px}
+.res b{color:#4ade80;display:block;font-size:12px;letter-spacing:.4px;margin-bottom:6px}
+.res .ref{font-family:ui-monospace,monospace;color:var(--cyan);font-size:13px}
+.det{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;background:var(--card);margin-top:7px;font-size:12.5px}
+.sev{width:9px;height:9px;border-radius:99px;flex:none}
+.s-high{background:var(--coral)} .s-med{background:var(--amber)} .s-low{background:var(--green)}
+.pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:auto}
+.p-high{background:#4c1d24;color:var(--coral)} .p-med{background:#4a3a12;color:var(--amber)} .p-low{background:#12402f;color:var(--green)}
+
+.hist{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line);align-items:center}
+.hist:last-child{border-bottom:0}
+.hist img,.hist canvas{width:52px;height:52px;border-radius:8px;object-fit:cover;flex:none;background:#000}
+.hist .m{flex:1;min-width:0}
+.hist .t{font-size:13px;font-weight:600}
+.hist .s{font-size:11px;color:var(--mut);margin-top:2px}
+.empty{color:var(--mut);text-align:center;padding:22px;font-size:13px}
+.warn{color:var(--amber);font-size:12px;margin-top:9px}
+.err{color:var(--coral);font-size:12px;margin-top:9px}
+.hide{display:none!important}
+footer{text-align:center;color:var(--mut2);font-size:11px;padding:22px;line-height:1.7}
+
+/* Interactive location map (OpenStreetMap tiles; no API key required) */
+#locationMap{height:340px;width:100%;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0b1b26}
+.map-note{font-size:11px;color:var(--mut);margin-top:8px}
+.leaflet-container{font:12px system-ui,sans-serif;background:#0b1b26}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0a2030;color:#eaf6fb}
+.leaflet-control-attribution{font-size:9px!important}
+
+/* backend integration */
+.s-none{background:var(--mut2)} .p-none{background:#1d3342;color:var(--mut)}
+.s-unk{background:#3a4b57} .p-unk{background:#2a2f3a;color:var(--mut)}
+.f input.bad{border-color:var(--coral)}
+.locwarn{font-size:11px;color:var(--amber);margin-top:2px}
+.prog{height:6px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:12px}
+.prog i{display:block;height:100%;width:0;background:var(--cyan);transition:width .2s}
+.progtxt{font-size:11.5px;color:var(--mut);margin-top:6px}
+.res.fail{border-color:#7a2a35;background:#3a1219}
+.res.fail b{color:var(--coral)}
+.res.part{border-color:#6b5414;background:#2d250c}
+.res.part b{color:var(--amber)}
+.inf{font-size:11.5px;margin-top:8px}
+.inf.ok{color:var(--mut)} .inf.bad{color:var(--amber)}
+.imgres{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:10px}
+.imgres figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.imgres img{width:100%;display:block;background:#000}
+.imgres figcaption{padding:7px 9px 9px;font-size:11px;color:var(--mut)}
+.det .cls{font-family:ui-monospace,monospace;font-size:10.5px;color:var(--mut2)}
+.det .area{color:var(--mut);font-size:11px}
+.hist{cursor:pointer}
+.hist:hover{background:rgba(34,211,238,.04)}
+.who .sn-who{color:var(--mut)}
+#detail .hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+#detail .hd h3{margin:0}
+#detail .hd .sp{margin-left:auto;display:flex;gap:8px}
+.kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:6px 14px;margin-top:10px;font-size:12px}
+.kvs div span{color:var(--mut);display:block;font-size:10.5px;letter-spacing:.3px}
+
+/* sign-in gate: content stays hidden until the server confirms a session */
+body:not(.sn-authed) .sn-protected{display:none!important}
+.sn-gate{max-width:620px;margin:48px auto;padding:18px 20px;background:var(--panel,#0a2030);border:1px solid var(--line,#17415c);
+  border-radius:14px;color:var(--mut,#8fb3c7);font-size:13.5px;line-height:1.6;text-align:center}
+.sn-gate b{color:var(--ink,#eaf6fb)} .sn-gate a{color:var(--cyan,#22d3ee)}
+body.sn-authed .sn-gate,.sn-gate:empty{display:none}
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+ integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="21" stroke="#22d3ee" stroke-width="2.5"/>
+    <path d="M6 26c5-4 8 4 13 0s8 4 13 0 6 3 10 0" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="24" cy="18" r="5" stroke="#22d3ee" stroke-width="2.5"/>
+  </svg>
+  <div class="brand">SAGAR-NETRA<small>Dive &amp; Survey Reporting</small></div>
+  <div class="who">
+    <span class="badge" id="whoRole">PROFESSIONAL</span>
+    <span id="whoName">Not signed in</span>
+    <span class="av" id="whoAv">··</span>
+  </div>
+</header>
+
+<div id="snGate" class="sn-gate"><b>Sign-in required.</b> Open this page through the SAGAR-NETRA server and <a href="../login/">sign in</a> (e.g. http://127.0.0.1:4000/login/).</div>
+<div class="page sn-protected">
+
+  <h2>Report marine debris from a dive or survey</h2>
+  <p class="sub">For divers, ROV pilots and survey crews with dedicated GPS, dive computers and high-resolution cameras. Upload full-resolution imagery from your laptop and record the detail a phone report cannot capture. Submissions go to the coastal authority.</p>
+
+  <!-- 1. IMAGES -->
+  <div class="card">
+    <h3>1 · IMAGERY</h3>
+    <div class="drop" id="drop">
+      <svg viewBox="0 0 24 24" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/>
+      </svg>
+      <b>Drop dive imagery here</b>
+      <small>or click to browse · full-resolution JPEG / PNG · multiple files supported</small>
+    </div>
+    <input type="file" id="files" accept="image/*" multiple>
+
+    <div class="mode">
+      <button id="mGroup" class="on">One incident, many photos
+        <span>Same net shot from several angles → a single report and one map pin</span></button>
+      <button id="mSep">Separate incidents
+        <span>Each photo is its own report and its own map pin</span></button>
+    </div>
+    <div class="thumbs" id="thumbs"></div>
+    <div class="warn hide" id="imgWarn"></div>
+  </div>
+
+  <!-- 2. POSITION -->
+  <div class="card">
+    <h3>2 · POSITION</h3>
+    <div class="fields">
+      <div class="f"><label>Site name</label><input type="text" id="site" placeholder="e.g. Netrani Island, north wall"></div>
+      <div class="f"><label>Latitude</label><input type="text" id="lat" placeholder="14.01750"><span class="hint">decimal degrees</span></div>
+      <div class="f"><label>Longitude</label><input type="text" id="lng" placeholder="74.32890"><span class="hint">decimal degrees</span></div>
+      <div class="f"><label>Position accuracy (m)</label><input type="number" id="acc" step="1" min="0" placeholder="3"><span class="hint">from your GPS unit</span></div>
+      <div class="f"><label>Position source</label>
+        <select id="locSrc">
+          <option value="manual">Typed manually</option>
+          <option value="sensor">Dive computer / ROV / boat GPS unit</option>
+          <option value="map_click">Picked on the map</option>
+          <option value="browser_gps">This device's GPS (surface position)</option>
+          <option value="exif">Image EXIF</option>
+        </select>
+        <span class="hint">how these coordinates were obtained</span></div>
+      <div class="f wide row">
+        <label class="chk"><input type="checkbox" id="useExif" checked> Auto-fill from image EXIF (GPS, timestamp, depth)</label>
+        <button class="mini" id="btnGeo" type="button">Use this device's location</button>
+        <span class="exifnote" id="exifNote"></span>
+      </div>
+      <div class="f wide locwarn hide" id="geoWarn">Browser location is where this laptop/phone is — the surface position — not the diver's or ROV's underwater position. Correct it if the debris lies elsewhere.</div>
+    </div>
+  </div>
+
+  <!-- MAP: click to set report coordinates -->
+  <div class="card">
+    <h3>LOCATION MAP</h3>
+    <p class="sub">Click the map to set the report coordinates, or use browser location above. Coloured circles are your saved reports (loaded from the database) — click one to open it. Map tiles are provided by OpenStreetMap.</p>
+    <div id="locationMap" role="application" aria-label="Map for choosing report location"></div>
+    <div class="map-note" id="mapStatus">Choose a location on the map. Your latitude and longitude fields will update.</div>
+  </div>
+
+  <!-- 3. DIVE DATA -->
+  <div class="card">
+    <h3>3 · DIVE DATA</h3>
+    <div class="fields">
+      <div class="f"><label>Depth (m)</label><input type="number" id="depth" step="0.1" min="0" placeholder="18.5"></div>
+      <div class="f"><label>Bottom time (min)</label><input type="number" id="btime" step="1" min="0" placeholder="34"></div>
+      <div class="f"><label>Water temperature (°C)</label><input type="number" id="temp" step="0.1" placeholder="27.4"></div>
+      <div class="f"><label>Visibility (m)</label><input type="number" id="vis" step="0.5" min="0" placeholder="8"></div>
+      <div class="f"><label>Date &amp; time of dive</label><input type="datetime-local" id="when"></div>
+    </div>
+  </div>
+
+  <!-- 4. DEBRIS DETAIL -->
+  <div class="card">
+    <h3>4 · DEBRIS DETAIL</h3>
+    <div class="fields">
+      <div class="f"><label>Debris type (your assessment)</label>
+        <select id="dtype">
+          <option value="">— let the model decide —</option>
+          <option value="trash_net">Ghost net</option>
+          <option value="trash_rope">Rope / line</option>
+          <option value="trash_bag">Plastic bags</option>
+          <option value="trash_container">Container / drum</option>
+          <option value="trash_wreckage">Wreckage</option>
+          <option value="trash_tarp">Tarpaulin / sheeting</option>
+          <option value="trash_pipe">Pipe</option>
+          <option value="trash_unknown_instance">Other / unidentified</option>
+        </select></div>
+      <div class="f"><label>Estimated extent (m²)</label><input type="number" id="extent" step="1" min="0" placeholder="120"></div>
+      <div class="f"><label>State</label>
+        <select id="state">
+          <option value="snagged">Snagged / anchored on substrate</option>
+          <option value="drifting">Drifting free</option>
+          <option value="partially">Partially buried</option>
+          <option value="unknown">Unknown</option>
+        </select></div>
+      <div class="f"><label>Suggested retrieval</label>
+        <select id="retrieval">
+          <option value="diver">Diver cut-and-lift</option>
+          <option value="liftbag">Lift bag required</option>
+          <option value="vessel">Vessel winch / trawl</option>
+          <option value="rov">ROV assisted</option>
+          <option value="specialist">Specialist team — hazardous</option>
+        </select></div>
+      <div class="f wide">
+        <label>Hazards observed</label>
+        <div class="chks">
+          <label class="chk"><input type="checkbox" id="hLife"> Marine life currently entangled or trapped</label>
+          <label class="chk"><input type="checkbox" id="hActive"> Actively ghost-fishing (recent catch visible)</label>
+          <label class="chk"><input type="checkbox" id="hNav"> Navigation or propeller-entanglement hazard</label>
+          <label class="chk"><input type="checkbox" id="hReef"> Damaging live coral / reef structure</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. SURVEY CONTEXT -->
+  <div class="card">
+    <h3>5 · SURVEY CONTEXT</h3>
+    <div class="fields">
+      <div class="f"><label>Operator / diver name</label><input type="text" id="operator" placeholder="e.g. A. Kurien"></div>
+      <div class="f"><label>Organisation / dive team</label><input type="text" id="org" placeholder="e.g. Reef Watch Marine Conservation"></div>
+      <div class="f"><label>Vessel</label><input type="text" id="vessel" placeholder="e.g. MV Sagarika"></div>
+      <div class="f"><label>Survey / transect ID</label><input type="text" id="transect" placeholder="e.g. NET-2026-014"><span class="hint">links related reports</span></div>
+      <div class="f"><label>Sea state</label>
+        <select id="sea">
+          <option value="">—</option>
+          <option value="calm">Calm (0–1)</option>
+          <option value="slight">Slight (2–3)</option>
+          <option value="moderate">Moderate (4)</option>
+          <option value="rough">Rough (5+)</option>
+        </select></div>
+      <div class="f"><label>Current</label>
+        <select id="current">
+          <option value="">—</option>
+          <option value="none">None</option>
+          <option value="mild">Mild</option>
+          <option value="strong">Strong</option>
+        </select></div>
+      <div class="f wide"><label>Notes</label>
+        <textarea id="notes" placeholder="Anything the response team should know before entering the water."></textarea></div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-bottom:6px">
+    <button class="btn" id="submit">Submit report</button>
+    <button class="btn ghost" id="reset">Clear form</button>
+    <span class="err hide" id="formErr"></span>
+  </div>
+  <div class="hide" id="progWrap" style="margin-bottom:18px">
+    <div class="prog"><i id="progBar"></i></div>
+    <div class="progtxt" id="progTxt"></div>
+  </div>
+  <div style="height:12px"></div>
+
+  <div id="results"></div>
+
+  <div class="card hide" id="detail"></div>
+
+  <div class="card">
+    <h3 id="histTitle">MY REPORTS</h3>
+    <div id="history"><div class="empty">Loading reports…</div></div>
+    <div class="row hide" id="moreRow" style="margin-top:12px"><button class="mini" id="btnMore" type="button">Load more</button></div>
+  </div>
+
+</div>
+
+<footer>
+  SAGAR-NETRA · AI ghost-net &amp; marine debris detection<br>
+  Professional reporting client. Reports are stored in the SAGAR-NETRA database and analysed by the trained YOLOv8n-seg model.
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="../shared/sn-client.js"></script>
+<script>
+var $ = function(id){ return document.getElementById(id); };
+var esc = SN.esc;
+
+/* Reports go to the SAGAR-NETRA API (same origin as this page, see backend/).
+   There is NO offline/simulated fallback: if the backend is unreachable the user
+   sees an error and the photos stay staged so they can retry. */
+
+/* ---------------- interactive location map ----------------
+   OpenStreetMap tiles through Leaflet; no API key required.
+   Respect the OSM tile usage policy for production/high traffic. */
+var locationMap = null, locationMarker = null, reportLayer = null;
+(function initLocationMap(){
+  if (!window.L || !$("locationMap")) {
+    $("mapStatus").textContent = "Map library did not load. You can still enter coordinates manually.";
+    return;
+  }
+  locationMap = L.map("locationMap").setView([20.5937, 78.9629], 4); // India overview
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+  }).addTo(locationMap);
+  reportLayer = L.layerGroup().addTo(locationMap);
+  locationMap.on("click", function(e){
+    $("lat").value = e.latlng.lat.toFixed(6);
+    $("lng").value = e.latlng.lng.toFixed(6);
+    setLocSrc("map_click");
+    setLocationMarker(e.latlng.lat, e.latlng.lng, "Selected report location", false);
+    $("mapStatus").textContent = "Coordinates selected: " + e.latlng.lat.toFixed(6) + ", " + e.latlng.lng.toFixed(6);
+  });
+  ["lat","lng"].forEach(function(id){
+    $(id).addEventListener("input", function(){ setLocSrc("manual"); $(id).classList.remove("bad"); });
+    $(id).addEventListener("change", syncMapFromInputs);
+  });
+  setTimeout(function(){ locationMap.invalidateSize(); }, 200);
+})();
+function setLocationMarker(lat, lng, label, recenter){
+  if (!locationMap) return;
+  var point = [lat,lng];
+  if (locationMarker) locationMarker.setLatLng(point);
+  else locationMarker = L.marker(point).addTo(locationMap);
+  locationMarker.bindPopup(esc(label || "Report location"));
+  if (recenter !== false) locationMap.setView(point, Math.max(locationMap.getZoom(), 12));
+}
+function validLat(v){ return Number.isFinite(v) && v >= -90 && v <= 90; }
+function validLng(v){ return Number.isFinite(v) && v >= -180 && v <= 180; }
+function syncMapFromInputs(){
+  var lat = num($("lat").value), lng = num($("lng").value);
+  if (validLat(lat) && validLng(lng)) {
+    setLocationMarker(lat,lng,"Report location");
+    $("mapStatus").textContent = "Coordinates: " + lat.toFixed(6) + ", " + lng.toFixed(6);
+  } else if ($("lat").value && $("lng").value) {
+    $("mapStatus").textContent = "Coordinates out of range — latitude must be −90…90 and longitude −180…180.";
+  }
+}
+function setLocSrc(v){
+  $("locSrc").value = v;
+  $("geoWarn").classList.toggle("hide", v !== "browser_gps");
+}
+$("locSrc").onchange = function(){ setLocSrc($("locSrc").value); };
+/* Strict decimal parse: "12abc" must not silently become 12. */
+function num(s){
+  s = String(s == null ? "" : s).trim();
+  if (!s || !/^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$/.test(s)) return NaN;
+  return Number(s);
+}
+
+/* ---------------- EXIF (real, no library) ----------------
+   Reads GPS lat/lng, DateTimeOriginal, and GPSAltitude. GPSAltitudeRef = 1
+   means below sea level, which is how dive rigs record DEPTH. */
+function readExif(file, cb){
+  var fr = new FileReader();
+  fr.onerror = function(){ cb(null); };
+  fr.onload = function(){
+    try { cb(parseExif(new DataView(fr.result))); } catch(e){ cb(null); }
+  };
+  fr.readAsArrayBuffer(file.slice(0, 256*1024));
+}
+function parseExif(v){
+  if (v.byteLength < 4 || v.getUint16(0) !== 0xFFD8) return null;
+  var off = 2, len = v.byteLength;
+  while (off < len - 4){
+    var m = v.getUint16(off);
+    if (m === 0xFFE1){
+      var s = off + 4;
+      if (v.getUint32(s) !== 0x45786966) return null;
+      return readTiff(v, s + 6);
+    }
+    if ((m & 0xFF00) !== 0xFF00) break;
+    off += 2 + v.getUint16(off + 2);
+  }
+  return null;
+}
+function readTiff(v, base){
+  var bo = v.getUint16(base), le = (bo === 0x4949);
+  if (!le && bo !== 0x4D4D) return null;
+  var ifd0 = v.getUint32(base + 4, le), out = {};
+  function sizeOf(t){ return t === 3 ? 2 : (t === 5 || t === 10) ? 8 : 4; }
+  function entries(d, want){
+    var n = v.getUint16(base + d, le), r = {};
+    for (var i=0;i<n;i++){
+      var e = base + d + 2 + i*12, tag = v.getUint16(e, le);
+      if (want.indexOf(tag) === -1) continue;
+      r[tag] = {type:v.getUint16(e+2,le), count:v.getUint32(e+4,le), valOff:e+8};
+    }
+    return r;
+  }
+  function rat(p){ return v.getUint32(p,le) / (v.getUint32(p+4,le) || 1); }
+  function ptr(en){ return en.count*sizeOf(en.type) > 4 ? base + v.getUint32(en.valOff,le) : en.valOff; }
+  function str(en){
+    var p = en.count > 4 ? base + v.getUint32(en.valOff,le) : en.valOff, s = "";
+    for (var i=0;i<en.count-1;i++){ var c = v.getUint8(p+i); if (!c) break; s += String.fromCharCode(c); }
+    return s;
+  }
+  var top = entries(ifd0, [0x8825,0x8769,0x010F,0x0110]);
+  if (top[0x010F]) out.make = str(top[0x010F]);
+  if (top[0x0110]) out.model = str(top[0x0110]);
+  if (top[0x8769]){
+    var ex = entries(v.getUint32(top[0x8769].valOff, le), [0x9003]);
+    if (ex[0x9003]) out.taken = str(ex[0x9003]);
+  }
+  if (top[0x8825]){
+    var g = entries(v.getUint32(top[0x8825].valOff, le), [1,2,3,4,5,6]);
+    function dms(en){ var p = ptr(en); return rat(p) + rat(p+8)/60 + rat(p+16)/3600; }
+    if (g[2] && g[1]){
+      var la = dms(g[2]);
+      if (String.fromCharCode(v.getUint8(g[1].valOff)) === "S") la = -la;
+      out.lat = +la.toFixed(6);
+    }
+    if (g[4] && g[3]){
+      var lo = dms(g[4]);
+      if (String.fromCharCode(v.getUint8(g[3].valOff)) === "W") lo = -lo;
+      out.lng = +lo.toFixed(6);
+    }
+    if (g[6]){
+      var alt = rat(ptr(g[6]));
+      if (g[5] && v.getUint8(g[5].valOff) === 1) out.depth = +alt.toFixed(1);
+    }
+  }
+  return Object.keys(out).length ? out : null;
+}
+function exifDate(s){
+  var m = /^(\d{4}):(\d{2}):(\d{2})[ T](\d{2}):(\d{2}):(\d{2})/.exec(s || "");
+  return m ? new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]) : null;
+}
+function localInput(d){
+  var p = function(n){ return String(n).padStart(2,"0"); };
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(d.getHours())+":"+p(d.getMinutes());
+}
+$("when").value = localInput(new Date());
+
+/* ---------------- underwater restoration preview (Layer 1) ---------------- */
+function enhance(src){
+  var d = new Uint8ClampedArray(src.data), n = d.length, px = n/4, i, c, v;
+  var sr=0,sg=0,sb=0;
+  for (i=0;i<n;i+=4){ sr+=d[i]; sg+=d[i+1]; sb+=d[i+2]; }
+  var ar=sr/px, ag=sg/px, ab=sb/px, avg=(ar+ag+ab)/3;
+  var kr=avg/(ar||1), kg=avg/(ag||1), kb=avg/(ab||1);
+  for (i=0;i<n;i+=4){ d[i]*=kr; d[i+1]*=kg; d[i+2]*=kb; }
+  for (c=0;c<3;c++){
+    var h = new Uint32Array(256);
+    for (i=c;i<n;i+=4) h[d[i]]++;
+    var lo=0,hi=255,acc=0,cut=px*0.01;
+    for (v=0;v<256;v++){ acc+=h[v]; if (acc>cut){ lo=v; break; } }
+    acc=0;
+    for (v=255;v>=0;v--){ acc+=h[v]; if (acc>cut){ hi=v; break; } }
+    var r = Math.max(1, hi-lo);
+    for (i=c;i<n;i+=4) d[i] = (d[i]-lo)*255/r;
+  }
+  return new ImageData(d, src.width, src.height);
+}
+
+/* ---------------- image staging ---------------- */
+var SHOTS = [];        /* {file, canvas, exif} */
+var grouped = true;
+
+$("mGroup").onclick = function(){ grouped = true;  $("mGroup").classList.add("on"); $("mSep").classList.remove("on"); };
+$("mSep").onclick   = function(){ grouped = false; $("mSep").classList.add("on");  $("mGroup").classList.remove("on"); };
+
+function warn(msg){
+  var w = $("imgWarn");
+  if (!msg){ w.classList.add("hide"); return; }
+  w.classList.remove("hide"); w.textContent = msg;
+}
+
+function addFile(f){
+  if (!SN.user()) return;            /* nothing can be staged before sign-in */
+  if (!f.type || f.type.indexOf("image/") !== 0){
+    warn("Skipped " + f.name + " — not an image (" + (f.type || "unknown type") + ").");
+    return;
+  }
+  var img = new Image(), url = URL.createObjectURL(f);
+  img.onerror = function(){
+    URL.revokeObjectURL(url);
+    warn("Could not read " + f.name + ". If this is a HEIC file from a phone, export it as JPEG.");
+  };
+  img.onload = function(){
+    var s = Math.min(1, 480/Math.max(img.width, img.height));
+    var cn = document.createElement("canvas");
+    cn.width = Math.round(img.width*s); cn.height = Math.round(img.height*s);
+    var cx = cn.getContext("2d", {willReadFrequently:true});
+    cx.drawImage(img, 0, 0, cn.width, cn.height);
+    cx.putImageData(enhance(cx.getImageData(0,0,cn.width,cn.height)), 0, 0);
+    URL.revokeObjectURL(url);
+
+    readExif(f, function(ex){
+      SHOTS.push({file:f, canvas:cn, exif:ex, w:img.width, h:img.height});
+      if (ex) applyExif(ex, f.name);
+      renderThumbs();
+    });
+  };
+  img.src = url;
+}
+
+function applyExif(ex, name){
+  if (!$("useExif").checked) return;
+  var got = [];
+  if (ex.lat != null && ex.lng != null && !$("lat").value){
+    $("lat").value = ex.lat; $("lng").value = ex.lng; got.push("GPS");
+    setLocSrc("exif"); syncMapFromInputs();
+  }
+  if (ex.depth != null && !$("depth").value){ $("depth").value = ex.depth; got.push("depth"); }
+  var d = exifDate(ex.taken);
+  if (d){ $("when").value = localInput(d); got.push("timestamp"); }
+  if (got.length){
+    $("exifNote").style.color = "var(--green)";
+    $("exifNote").textContent = "EXIF from " + name + ": " + got.join(", ");
+  }
+}
+
+function renderThumbs(){
+  var t = $("thumbs");
+  t.innerHTML = "";
+  SHOTS.forEach(function(s, i){
+    var d = document.createElement("div");
+    d.className = "th";
+    d.appendChild(s.canvas);
+    var nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = s.file.name + " · " + s.w + "×" + s.h;
+    d.appendChild(nm);
+    if (s.exif && (s.exif.lat != null || s.exif.depth != null)){
+      var e = document.createElement("div"); e.className = "ex"; e.textContent = "EXIF"; d.appendChild(e);
+    }
+    var x = document.createElement("button");
+    x.className = "x"; x.innerHTML = "&times;"; x.title = "Remove";
+    x.onclick = function(){ SHOTS.splice(i,1); renderThumbs(); };
+    d.appendChild(x);
+    t.appendChild(d);
+  });
+}
+
+$("drop").onclick = function(){ $("files").click(); };
+$("files").onchange = function(e){
+  warn("");
+  Array.prototype.forEach.call(e.target.files, addFile);
+  e.target.value = "";
+};
+["dragenter","dragover"].forEach(function(ev){
+  $("drop").addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); $("drop").classList.add("hot"); });
+});
+["dragleave","dragend"].forEach(function(ev){
+  $("drop").addEventListener(ev, function(e){ e.preventDefault(); $("drop").classList.remove("hot"); });
+});
+$("drop").addEventListener("drop", function(e){
+  e.preventDefault(); e.stopPropagation();
+  $("drop").classList.remove("hot");
+  warn("");
+  if (e.dataTransfer && e.dataTransfer.files) Array.prototype.forEach.call(e.dataTransfer.files, addFile);
+});
+["dragover","drop"].forEach(function(ev){
+  window.addEventListener(ev, function(e){ e.preventDefault(); }, false);
+});
+
+$("btnGeo").onclick = function(){
+  if (!navigator.geolocation){ $("exifNote").textContent = "Geolocation unavailable — enter coordinates manually or click the map"; return; }
+  $("exifNote").style.color = "var(--mut)";
+  $("exifNote").textContent = "Locating…";
+  navigator.geolocation.getCurrentPosition(function(p){
+    $("lat").value = p.coords.latitude.toFixed(6);
+    $("lng").value = p.coords.longitude.toFixed(6);
+    $("lat").classList.remove("bad"); $("lng").classList.remove("bad");
+    setLocationMarker(p.coords.latitude, p.coords.longitude, "This device (surface position)");
+    $("acc").value = Math.round(p.coords.accuracy);
+    setLocSrc("browser_gps");
+    $("exifNote").style.color = "var(--green)";
+    $("exifNote").textContent = "Device location set (±" + Math.round(p.coords.accuracy) + " m)";
+  }, function(e){
+    $("exifNote").style.color = "var(--coral)";
+    $("exifNote").textContent = (e && e.code === 1 ? "Location permission denied" : "Location unavailable") +
+      " — enter coordinates manually or click the map";
+  }, {enableHighAccuracy:true, timeout:10000});
+};
+
+/* ---------------- submission ---------------- */
+function opt(v){ return v === "" ? null : num(v); }
+function collect(){
+  var hz = [];
+  if ($("hLife").checked)   hz.push("marine_life_entangled");
+  if ($("hActive").checked) hz.push("actively_ghost_fishing");
+  if ($("hNav").checked)    hz.push("navigation_hazard");
+  if ($("hReef").checked)   hz.push("reef_damage");
+  return {
+    site:$("site").value.trim(),
+    lat:num($("lat").value), lng:num($("lng").value),
+    accuracy:opt($("acc").value),
+    loc_source:$("locSrc").value,
+    depth:opt($("depth").value),
+    bottom_time:opt($("btime").value),
+    water_temp:opt($("temp").value),
+    visibility:opt($("vis").value),
+    when:$("when").value ? new Date($("when").value) : null,
+    declared_type:$("dtype").value,
+    extent:opt($("extent").value),
+    state:$("state").value, retrieval:$("retrieval").value, hazards:hz,
+    operator:$("operator").value.trim(), org:$("org").value.trim(),
+    vessel:$("vessel").value.trim(), transect:$("transect").value.trim(),
+    sea:$("sea").value, current:$("current").value,
+    notes:$("notes").value.trim()
+  };
+}
+
+/* Mirrors the backend rules so the user gets immediate feedback;
+   the server re-validates everything. Returns an error message or "". */
+function validate(m){
+  var bad = [];
+  $("lat").classList.toggle("bad", !validLat(m.lat));
+  $("lng").classList.toggle("bad", !validLng(m.lng));
+  if (!validLat(m.lat)) bad.push("latitude must be a decimal number between −90 and 90");
+  if (!validLng(m.lng)) bad.push("longitude must be a decimal number between −180 and 180");
+  function rng(v, lo, hi, name){ if (v !== null && !(v >= lo && v <= hi)) bad.push(name + " must be between " + lo + " and " + hi); }
+  rng(m.accuracy, 0, 100000, "position accuracy");
+  rng(m.depth, 0, 11000, "depth (m)");
+  rng(m.water_temp, -5, 50, "water temperature (°C)");
+  rng(m.visibility, 0, 1000, "visibility (m)");
+  rng(m.bottom_time, 0, 1440, "bottom time (min)");
+  rng(m.extent, 0, 10000000, "estimated extent");
+  if (m.when && isNaN(m.when.getTime())) bad.push("dive date/time is invalid");
+  if (m.when && m.when.getTime() > Date.now() + 864e5) bad.push("dive date/time cannot be in the future");
+  return bad.length ? "Please fix: " + bad.join("; ") + "." : "";
+}
+
+function details(m){
+  var d = {
+    bottom_time_min:m.bottom_time, declared_type:m.declared_type || null, extent_m2:m.extent,
+    debris_state:m.state, retrieval:m.retrieval, hazards:m.hazards,
+    operator:m.operator, organisation:m.org, vessel:m.vessel, transect_id:m.transect,
+    sea_state:m.sea, current:m.current
+  };
+  Object.keys(d).forEach(function(k){
+    if (d[k] === null || d[k] === "" || (Array.isArray(d[k]) && !d[k].length)) delete d[k];
+  });
+  return d;
+}
+
+function buildForm(shots, m){
+  var fd = new FormData();
+  /* full-resolution originals go to the model; it was trained on raw frames,
+     so the enhanced canvas is preview-only and never sent for detection */
+  shots.forEach(function(s){ fd.append("images", s.file, s.file.name); });
+  fd.append("latitude", String(m.lat));
+  fd.append("longitude", String(m.lng));
+  fd.append("location_source", m.loc_source);
+  fd.append("source_channel", "professional");
+  if (m.site) fd.append("site_name", m.site);
+  if (m.accuracy !== null) fd.append("position_accuracy_m", String(m.accuracy));
+  if (m.depth !== null) fd.append("depth", String(m.depth));
+  if (m.water_temp !== null) fd.append("water_temp", String(m.water_temp));
+  if (m.visibility !== null) fd.append("visibility", String(m.visibility));
+  if (m.when) fd.append("observed_at", m.when.toISOString());
+  if (m.notes) fd.append("comments", m.notes);
+  fd.append("details", JSON.stringify(details(m)));
+  return fd;
+}
+
+function err(msg){
+  var e = $("formErr");
+  if (!msg){ e.classList.add("hide"); return; }
+  e.classList.remove("hide"); e.textContent = msg;
+}
+function progress(text, frac){
+  $("progWrap").classList.toggle("hide", text === null);
+  if (text === null) return;
+  $("progTxt").textContent = text;
+  $("progBar").style.width = Math.round((frac || 0) * 100) + "%";
+}
+
+var MAX_MB = 15, MAX_FILES = 10;
+$("submit").onclick = function(){
+  err("");
+  if (!SN.user()){ err("Sign in to submit reports."); start(); return; }
+  if (!SHOTS.length){ err("Add at least one image before submitting."); return; }
+  var meta = collect();
+  var problem = validate(meta);
+  if (problem){ err(problem); return; }
+  var big = SHOTS.filter(function(s){ return s.file.size > MAX_MB*1024*1024; });
+  if (big.length){ err(big[0].file.name + " is larger than " + MAX_MB + " MB."); return; }
+  if (grouped && SHOTS.length > MAX_FILES){ err("At most " + MAX_FILES + " photos per incident report."); return; }
+
+  var b = $("submit");
+  b.disabled = true;
+  b.innerHTML = '<span class="spin"></span>Submitting…';
+  var batches = grouped ? [SHOTS.slice()] : SHOTS.map(function(s){ return [s]; });
+  var saved = [], failed = [];
+
+  function next(i){
+    if (i >= batches.length){
+      b.disabled = false; b.textContent = "Submit report";
+      progress(null);
+      /* only successfully saved photos leave the staging area */
+      SHOTS = SHOTS.filter(function(s){ return failed.some(function(f){ return f.shots.indexOf(s) !== -1; }); });
+      renderThumbs();
+      showResults(saved, failed);
+      refreshFromServer();
+      return;
+    }
+    var label = batches.length > 1 ? "Report " + (i+1) + " of " + batches.length + ": " : "";
+    progress(label + "uploading…", 0);
+    SN.upload("/api/reports", buildForm(batches[i], meta), function(f){
+      progress(label + (f < 1 ? "uploading " + Math.round(f*100) + "%" : "upload complete — running the detection model…"), f);
+    }).then(function(res){
+      saved.push(res);
+    }, function(e){
+      failed.push({shots:batches[i], error:e});
+      if (e.status === 401){ start(); }
+    }).then(function(){ next(i+1); });
+  }
+  next(0);
+};
+
+/* ---------------- rendering real results ---------------- */
+function refLabel(id){ return "SN-" + String(id).padStart(5, "0"); }
+function sevOf(x){ return x === "high" || x === "med" || x === "low" || x === "none" ? x : "unk"; }
+function sevText(x){ return x === "none" ? "NO DEBRIS" : x === "unk" ? "NOT ANALYSED" : x.toUpperCase(); }
+
+function detRow(d){
+  var sev = d.is_debris ? sevOf(d.severity) : "none";
+  return '<div class="det"><span class="sev s-' + sev + '"></span>' +
+    '<span>' + esc(SN.label(d.type_name)) + ' <span class="cls">' + esc(d.type_name) + '</span></span>' +
+    '<span style="color:var(--mut)">' + SN.fmtPct(d.confidence) + '</span>' +
+    (d.mask_area_frac != null ? '<span class="area">mask ' + (d.mask_area_frac*100).toFixed(1) + '% of frame</span>' : '') +
+    (d.status !== "detected" ? '<span class="area">· ' + esc(d.status.replace("_"," ")) + '</span>' : '') +
+    '<span class="pill p-' + sev + '">' + (d.is_debris ? sevText(sev) : "NOT DEBRIS") + '</span></div>';
+}
+
+function inferenceLine(r){
+  var imgs = r.images || [], done = imgs.filter(function(i){ return i.inference_status === "completed"; });
+  var failedImgs = imgs.filter(function(i){ return i.inference_status === "failed"; });
+  var s = "";
+  if (done.length){
+    var ms = done.map(function(i){ return i.inference_ms || 0; });
+    s += '<div class="inf ok">Analysed by the SAGAR-NETRA YOLOv8n-seg model (' + done.length + '/' + imgs.length +
+      ' image' + (imgs.length>1?"s":"") + ', imgsz ' + esc(done[0].model_imgsz) + ', conf ≥ ' + esc(done[0].model_conf) +
+      ', ' + Math.round(Math.max.apply(null, ms)) + ' ms max) · ' + r.detections.length + ' detection' + (r.detections.length===1?"":"s") + '</div>';
+  }
+  failedImgs.forEach(function(i){
+    s += '<div class="inf bad">⚠ ' + esc(i.original_filename) + ': analysis failed — ' + esc(i.inference_error) +
+      '. No detections were recorded for this image.</div>';
+  });
+  if (failedImgs.length) s += '<div class="row" style="margin-top:8px"><button class="mini" type="button" data-retry="' + r.report_id + '">Retry analysis</button></div>';
+  return s;
+}
+
+function imagesBlock(r){
+  return '<div class="imgres">' + (r.images || []).map(function(im){
+    var dets = r.detections.filter(function(d){ return d.image_id === im.image_id; });
+    return '<figure><img loading="lazy" alt="' + esc(im.original_filename) + '" src="' + esc(SN.base + (im.annotated_url || im.url)) + '">' +
+      '<figcaption>' + esc(im.original_filename) + (im.width ? ' · ' + im.width + '×' + im.height : '') +
+      (im.annotated_url ? ' · model overlay' : '') +
+      (im.inference_status === "completed" && !dets.length ? '<br>No objects detected above the confidence threshold.' : '') +
+      '</figcaption></figure>';
+  }).join("") + '</div>';
+}
+
+function reportCard(r, heading){
+  var st = r.inference_status, cls = st === "failed" ? " fail" : st === "partial" ? " part" : "";
+  var where = r.site_name ? esc(r.site_name) + ' · ' : '';
+  return '<div class="res' + cls + '"><b>' + heading + '</b>' +
+    '<div class="ref">' + refLabel(r.report_id) + '</div>' +
+    '<div style="color:var(--mut);font-size:12px;margin-top:4px">' + where +
+      (r.images ? r.images.length : r.image_count) + ' image(s) · ' + (r.depth != null ? r.depth + ' m · ' : '') +
+      Number(r.latitude).toFixed(5) + ', ' + Number(r.longitude).toFixed(5) + ' (' + esc(locText(r.location_source)) + ')</div>' +
+    (r.detections || []).map(detRow).join("") +
+    inferenceLine(r) + imagesBlock(r) + '</div>';
+}
+function locText(s){
+  return {browser_gps:"device GPS, surface", map_click:"picked on map", manual:"manual entry", exif:"image EXIF", sensor:"dive/ROV/GPS unit"}[s] || s;
+}
+
+function bindRetry(root){
+  Array.prototype.forEach.call(root.querySelectorAll("[data-retry]"), function(btn){
+    btn.onclick = function(){
+      btn.disabled = true; btn.textContent = "Re-analysing…";
+      SN.api("/api/reports/" + btn.dataset.retry + "/reprocess", {method:"POST"}).then(function(res){
+        var holder = btn.closest(".res");
+        holder.outerHTML = reportCard(res.report, res.report.inference_status === "completed" ? "ANALYSIS COMPLETED" : "ANALYSIS STILL FAILING");
+        bindRetry(document.body);
+        refreshFromServer();
+      }, function(e){ btn.disabled = false; btn.textContent = "Retry analysis"; alert(e.message); });
+    };
+  });
+}
+
+function showResults(saved, failed){
+  var html = saved.map(function(res){
+    var r = res.report, st = r.inference_status;
+    return reportCard(r, st === "completed" ? "REPORT SAVED · ANALYSED" : st === "partial" ? "REPORT SAVED · PARTLY ANALYSED" : "REPORT SAVED · ANALYSIS FAILED");
+  }).join("");
+  html += failed.map(function(f){
+    return '<div class="res fail"><b>NOT SAVED</b><div style="font-size:12.5px">' +
+      esc(f.shots.map(function(s){ return s.file.name; }).join(", ")) + '</div>' +
+      '<div class="inf bad">' + esc(f.error.message) + '</div>' +
+      '<div class="inf ok">The photos are still staged above — fix the problem and submit again.</div></div>';
+  }).join("");
+  $("results").innerHTML = html;
+  bindRetry($("results"));
+  window.scrollTo({top: $("results").offsetTop - 70, behavior:"smooth"});
+}
+
+/* ---------------- report detail (history / map markers) ---------------- */
+function openReport(id){
+  var d = $("detail");
+  d.classList.remove("hide");
+  d.innerHTML = '<div class="empty">Loading ' + refLabel(id) + '…</div>';
+  SN.api("/api/reports/" + encodeURIComponent(id)).then(function(res){
+    var r = res.report, det = r.details || {};
+    var kv = function(k, v){ return v === null || v === undefined || v === "" ? "" : '<div><span>' + k + '</span>' + esc(v) + '</div>'; };
+    d.innerHTML = '<div class="hd"><h3>REPORT ' + refLabel(r.report_id) + '</h3><div class="sp">' +
+        '<button class="mini" type="button" id="dZoom">Show on map</button>' +
+        '<button class="mini" type="button" id="dDel">Delete</button>' +
+        '<button class="mini" type="button" id="dClose">Close</button></div></div>' +
+      '<div class="kvs">' +
+        kv("Site", r.site_name) + kv("Coordinates", Number(r.latitude).toFixed(6) + ", " + Number(r.longitude).toFixed(6)) +
+        kv("Position source", locText(r.location_source)) + kv("Accuracy (m)", r.position_accuracy_m) +
+        kv("Dive time", r.observed_at && new Date(r.observed_at).toLocaleString()) +
+        kv("Uploaded", new Date(r.upload_time).toLocaleString()) + kv("Depth (m)", r.depth) +
+        kv("Water temp (°C)", r.water_temp) + kv("Visibility (m)", r.visibility) +
+        kv("Bottom time (min)", det.bottom_time_min) + kv("Declared type", det.declared_type && SN.label(det.declared_type)) +
+        kv("Extent (m², diver estimate)", det.extent_m2) + kv("State", det.debris_state) + kv("Retrieval", det.retrieval) +
+        kv("Hazards", (det.hazards || []).join(", ").replace(/_/g, " ")) + kv("Operator", det.operator) +
+        kv("Organisation", det.organisation) + kv("Vessel", det.vessel) + kv("Transect", det.transect_id) +
+        kv("Sea state", det.sea_state) + kv("Current", det.current) +
+        kv("Review status", r.review_status) + kv("Severity (model)", r.severity ? sevText(sevOf(r.severity)) : "not analysed") +
+      '</div>' +
+      (r.comments ? '<p style="font-size:12.5px;color:var(--mut);margin:10px 0 0">' + esc(r.comments) + '</p>' : '') +
+      '<div style="margin-top:12px">' + reportCard(r, "MODEL RESULTS") + '</div>';
+    bindRetry(d);
+    $("dClose").onclick = function(){ d.classList.add("hide"); d.innerHTML = ""; };
+    $("dZoom").onclick = function(){
+      if (locationMap){ locationMap.setView([r.latitude, r.longitude], 12); $("locationMap").scrollIntoView({behavior:"smooth", block:"center"}); }
+    };
+    $("dDel").onclick = function(){
+      if (!confirm("Delete " + refLabel(r.report_id) + " and its images permanently?")) return;
+      SN.api("/api/reports/" + r.report_id, {method:"DELETE"}).then(function(){
+        d.classList.add("hide"); d.innerHTML = ""; refreshFromServer();
+      }, function(e){ alert(e.message); });
+    };
+    d.scrollIntoView({behavior:"smooth", block:"start"});
+  }, function(e){
+    d.innerHTML = '<div class="err">Could not load report: ' + esc(e.message) + '</div>';
+  });
+}
+
+/* ---------------- history + markers, from PostgreSQL ---------------- */
+var histPage = 1;
+function loadHistory(reset){
+  if (reset){ histPage = 1; }
+  var h = $("history");
+  if (reset) h.innerHTML = '<div class="empty">Loading reports…</div>';
+  SN.api("/api/reports?limit=10&page=" + histPage).then(function(res){
+    if (reset) h.innerHTML = "";
+    if (!res.reports.length && histPage === 1){ h.innerHTML = '<div class="empty">No reports submitted yet.</div>'; }
+    res.reports.forEach(function(r){
+      var row = document.createElement("div");
+      row.className = "hist";
+      row.tabIndex = 0;
+      var top = r.summary.top;
+      var sev = sevOf(r.severity);
+      var title = r.inference_status === "failed" ? "Analysis failed" :
+        top ? SN.label(top.type_name) + " · " + SN.fmtPct(top.confidence) :
+        r.inference_status === "completed" ? "No objects detected" : "Analysis " + r.inference_status;
+      row.innerHTML = '<img alt="" loading="lazy" src="' + esc(SN.base + r.image_url) + '">' +
+        '<div class="m"><div class="t">' + esc(title) +
+          (r.summary.debris_count > 1 ? ' <span style="color:var(--mut);font-weight:400">+' + (r.summary.debris_count-1) + ' more debris</span>' : '') + '</div>' +
+        '<div class="s">' + refLabel(r.report_id) + ' · ' + esc(r.site_name || (Number(r.latitude).toFixed(4) + ", " + Number(r.longitude).toFixed(4))) +
+          (r.depth != null ? ' · ' + r.depth + ' m' : '') + ' · ' + r.image_count + ' img · ' +
+          new Date(r.upload_time).toLocaleString() +
+          (r.reported_by !== SN.user().user_id ? ' · by ' + esc(r.reporter_name) : '') + '</div></div>' +
+        '<span class="pill p-' + sev + '">' + sevText(sev) + '</span>';
+      row.onclick = function(){ openReport(r.report_id); };
+      row.onkeydown = function(e){ if (e.key === "Enter") openReport(r.report_id); };
+      h.appendChild(row);
+    });
+    $("moreRow").classList.toggle("hide", res.pagination.page >= res.pagination.pages);
+  }, function(e){
+    h.innerHTML = '<div class="err">Could not load reports: ' + esc(e.message) + '</div>';
+  });
+}
+$("btnMore").onclick = function(){ histPage++; loadHistory(false); };
+
+var SEVCOL = {high:"#fb7185", med:"#fbbf24", low:"#34d399", none:"#5f8298", unk:"#8b98a5"};
+function loadMarkers(){
+  if (!reportLayer) return;
+  SN.api("/api/reports/markers?limit=1000").then(function(res){
+    reportLayer.clearLayers();
+    res.markers.forEach(function(m){
+      var c = SEVCOL[sevOf(m.severity)];
+      var pin = L.circleMarker([m.latitude, m.longitude], {radius:7, color:c, fillColor:c, fillOpacity:0.85, weight:2});
+      pin.bindTooltip(refLabel(m.report_id) + " · " + (m.top_class ? SN.label(m.top_class) : (m.inference_status === "failed" ? "analysis failed" : "no detections")) +
+        (m.site_name ? " · " + m.site_name : ""));
+      pin.on("click", function(){ openReport(m.report_id); });
+      pin.addTo(reportLayer);
+    });
+  }, function(){ /* map stays usable for picking coordinates */ });
+}
+function refreshFromServer(){ loadHistory(true); loadMarkers(); }
+
+$("reset").onclick = function(){
+  SHOTS = []; renderThumbs(); warn(""); err("");
+  ["site","lat","lng","acc","depth","btime","temp","vis","extent",
+   "operator","org","vessel","transect","notes"].forEach(function(id){ $(id).value = ""; $(id).classList.remove("bad"); });
+  ["dtype","sea","current"].forEach(function(id){ $(id).selectedIndex = 0; });
+  ["hLife","hActive","hNav","hReef"].forEach(function(id){ $(id).checked = false; });
+  setLocSrc("manual");
+  $("when").value = localInput(new Date());
+  $("exifNote").textContent = "";
+  $("results").innerHTML = "";
+};
+
+/* ---------------- session ---------------- */
+function setUser(u){
+  $("whoName").textContent = "";
+  $("whoName").appendChild(SN.userBadge(u));
+  $("whoAv").textContent = SN.initials(u.name);
+  $("whoRole").textContent = String(u.role).toUpperCase();
+  $("histTitle").textContent = u.role === "admin" ? "ALL REPORTS (ADMIN)" : "MY REPORTS";
+  refreshFromServer();
+}
+function start(){
+  SN.requireLogin({ onReady: setUser });
+}
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,408 @@
+{
+  "summary": {
+    "frames": 29,
+    "frames_with_net_gt": 29,
+    "net_frames_detected": 25,
+    "net_frame_recall": 0.862,
+    "mean_net_confidence_when_detected": 0.932,
+    "frames_with_false_net": 0,
+    "class_presence_recall": 0.703,
+    "class_presence_precision": 0.807,
+    "latency_ms_median": 131.0,
+    "latency_ms_p95": 166.5
+  },
+  "frames": [
+    {
+      "image": "vid_000052_frame0000035.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.9877,
+        "trash_bag": 0.90246,
+        "rov": 0.89665,
+        "trash_unknown_instance": 0.71511
+      }
+    },
+    {
+      "image": "vid_000052_frame0000041.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.98836,
+        "trash_bag": 0.88156,
+        "rov": 0.82173,
+        "trash_unknown_instance": 0.79984
+      }
+    },
+    {
+      "image": "vid_000052_frame0000045.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.98636,
+        "trash_bag": 0.85693,
+        "rov": 0.81038,
+        "trash_unknown_instance": 0.69928,
+        "trash_wreckage": 0.43384
+      }
+    },
+    {
+      "image": "vid_000052_frame0000047.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.98859,
+        "trash_bag": 0.82837,
+        "rov": 0.74675,
+        "trash_wreckage": 0.66142,
+        "trash_unknown_instance": 0.38645
+      }
+    },
+    {
+      "image": "vid_000052_frame0000049.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.98444,
+        "rov": 0.79349,
+        "trash_unknown_instance": 0.46459,
+        "trash_bag": 0.44494
+      }
+    },
+    {
+      "image": "vid_000052_frame0000051.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.99485,
+        "trash_bag": 0.7803,
+        "rov": 0.75653,
+        "trash_unknown_instance": 0.2988
+      }
+    },
+    {
+      "image": "vid_000052_frame0000052.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.9886,
+        "rov": 0.65475,
+        "trash_bag": 0.54003,
+        "trash_unknown_instance": 0.38506
+      }
+    },
+    {
+      "image": "vid_000052_frame0000054.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.98584,
+        "trash_bag": 0.65798,
+        "rov": 0.65729
+      }
+    },
+    {
+      "image": "vid_000052_frame0000056.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.97455,
+        "rov": 0.86668,
+        "trash_bag": 0.71632,
+        "animal_etc": 0.26546
+      }
+    },
+    {
+      "image": "vid_000052_frame0000058.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.98405,
+        "rov": 0.7441,
+        "trash_bag": 0.43965
+      }
+    },
+    {
+      "image": "vid_000052_frame0000060.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.99483,
+        "rov": 0.96186
+      }
+    },
+    {
+      "image": "vid_000052_frame0000062.jpg",
+      "gt": [
+        "rov",
+        "trash_bag",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.99499,
+        "rov": 0.96247,
+        "trash_unknown_instance": 0.33002
+      }
+    },
+    {
+      "image": "vid_000052_frame0000066.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.96314,
+        "rov": 0.84902,
+        "animal_eel": 0.58137,
+        "trash_can": 0.49808
+      }
+    },
+    {
+      "image": "vid_000052_frame0000068.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.93695,
+        "rov": 0.88276,
+        "trash_can": 0.45326
+      }
+    },
+    {
+      "image": "vid_000052_frame0000070.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.97562,
+        "rov": 0.9566
+      }
+    },
+    {
+      "image": "vid_000052_frame0000072.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.99697,
+        "rov": 0.93853
+      }
+    },
+    {
+      "image": "vid_000052_frame0000074.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.97626,
+        "rov": 0.93234
+      }
+    },
+    {
+      "image": "vid_000052_frame0000076.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "rov": 0.95894,
+        "trash_net": 0.92461
+      }
+    },
+    {
+      "image": "vid_000052_frame0000078.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.94363,
+        "rov": 0.93577,
+        "animal_starfish": 0.74745
+      }
+    },
+    {
+      "image": "vid_000052_frame0000080.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.94315,
+        "rov": 0.93471
+      }
+    },
+    {
+      "image": "vid_000052_frame0000082.jpg",
+      "gt": [
+        "rov",
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_net": 0.96799,
+        "rov": 0.94405
+      }
+    },
+    {
+      "image": "vid_000053_frame0000012.jpg",
+      "gt": [
+        "animal_starfish",
+        "rov",
+        "trash_net"
+      ],
+      "pred": {
+        "trash_net": 0.99964,
+        "animal_starfish": 0.99323,
+        "rov": 0.87384
+      }
+    },
+    {
+      "image": "vid_000055_frame0000055.jpg",
+      "gt": [
+        "rov",
+        "trash_net"
+      ],
+      "pred": {
+        "rov": 0.99607,
+        "trash_net": 0.93159
+      }
+    },
+    {
+      "image": "vid_000090_frame0000048.jpg",
+      "gt": [
+        "animal_starfish",
+        "trash_container",
+        "trash_net"
+      ],
+      "pred": {
+        "trash_bottle": 0.73688
+      }
+    },
+    {
+      "image": "vid_000090_frame0000049.jpg",
+      "gt": [
+        "animal_starfish",
+        "trash_net",
+        "trash_tarp"
+      ],
+      "pred": {
+        "animal_starfish": 0.34868,
+        "trash_unknown_instance": 0.28795
+      }
+    },
+    {
+      "image": "vid_000090_frame0000050.jpg",
+      "gt": [
+        "animal_starfish",
+        "trash_container",
+        "trash_net",
+        "trash_rope",
+        "trash_tarp"
+      ],
+      "pred": {
+        "trash_bottle": 0.99228,
+        "animal_starfish": 0.47863,
+        "trash_net": 0.38425,
+        "trash_rope": 0.29019
+      }
+    },
+    {
+      "image": "vid_000090_frame0000051.jpg",
+      "gt": [
+        "animal_starfish",
+        "trash_container",
+        "trash_net",
+        "trash_rope",
+        "trash_tarp"
+      ],
+      "pred": {
+        "trash_bottle": 0.96903,
+        "animal_starfish": 0.74217,
+        "trash_net": 0.49542
+      }
+    },
+    {
+      "image": "vid_000090_frame0000054.jpg",
+      "gt": [
+        "animal_starfish",
+        "trash_net",
+        "trash_rope",
+        "trash_tarp",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_bottle": 0.92915,
+        "trash_rope": 0.49608
+      }
+    },
+    {
+      "image": "vid_000090_frame0000065.jpg",
+      "gt": [
+        "trash_net",
+        "trash_unknown_instance"
+      ],
+      "pred": {
+        "trash_rope": 0.94621,
+        "trash_tarp": 0.89118,
+        "trash_clothing": 0.41078,
+        "trash_unknown_instance": 0.3489
+      }
+    }
+  ]
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAGAR-NETRA · Sign in</title>
+<style>
+:root{
+  --bg:#03101a; --panel:#0a2030; --card:#0e2b3f; --line:#17415c;
+  --ink:#eaf6fb; --mut:#8fb3c7; --mut2:#5f8298;
+  --cyan:#22d3ee; --teal:#0e7490; --coral:#fb7185; --green:#34d399; --amber:#fbbf24; --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  min-height:100vh;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:14px;padding:12px 22px;background:var(--panel);border-bottom:1px solid var(--line)}
+.logo{width:30px;height:30px;flex:none}
+.brand{font-weight:700;font-size:15.5px;letter-spacing:.4px;line-height:1.2}
+.brand small{display:block;font-weight:400;font-size:10.5px;color:var(--mut)}
+.who{margin-left:auto;font-size:12.5px;color:var(--mut)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:28px 16px}
+.wrap{width:100%;max-width:880px}
+.intro{text-align:center;margin-bottom:22px}
+.intro h1{font-size:22px;margin:0 0 6px}
+.intro p{color:var(--mut);margin:0;font-size:13.5px}
+
+/* step 1 — portal cards */
+.portals{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.portal{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--panel);border:1px solid var(--line);
+  border-radius:16px;padding:20px;color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,transform .15s}
+.portal:hover,.portal:focus-visible{border-color:var(--cyan);outline:none;transform:translateY(-2px)}
+.portal[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.portal svg{width:34px;height:34px;stroke:var(--cyan);fill:none}
+.portal b{font-size:16px}
+.portal span{color:var(--mut);font-size:12.5px;line-height:1.5}
+.portal .who-tag{margin-top:auto;font-size:10.5px;font-weight:700;letter-spacing:.5px;color:var(--violet)}
+.portal .go-tag{font-size:12px;color:var(--cyan);font-weight:600}
+.below{text-align:center;margin-top:18px;color:var(--mut);font-size:12.5px}
+
+/* step 2 — form */
+.box{width:100%;max-width:420px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+.back{display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--cyan);font:inherit;font-size:13px;
+  font-weight:600;cursor:pointer;padding:0;margin-bottom:12px}
+.back:hover{text-decoration:underline}
+.ptag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:99px;background:#20304a;color:var(--violet);margin-bottom:8px}
+h2{font-size:18px;margin:0 0 4px}
+.sub{color:var(--mut);font-size:12.5px;margin:0 0 16px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button{flex:1;padding:9px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--mut);font-weight:600;cursor:pointer;font-size:13px}
+.tabs button.on{background:var(--teal);color:#fff;border-color:var(--cyan)}
+label{display:block;font-size:11px;color:var(--mut);font-weight:600;letter-spacing:.4px;margin:11px 0 4px}
+input,select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px;color:var(--ink);font:inherit;font-size:14px}
+input:focus,select:focus{outline:none;border-color:var(--cyan)}
+.hint{font-size:11px;color:var(--mut2);margin-top:4px}
+.note{font-size:12px;color:var(--amber);background:#2d250c;border:1px solid #6b5414;border-radius:10px;padding:9px 11px;margin-top:12px}
+.go{width:100%;margin-top:18px;padding:12px;border:0;border-radius:10px;background:var(--cyan);color:#04141f;font-weight:700;font-size:14.5px;cursor:pointer}
+.go:disabled{opacity:.6;cursor:wait}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--mut);margin-top:10px}
+.err{color:var(--coral);font-size:12.5px;margin-top:12px;min-height:1em}
+.ok{color:var(--green)}
+.hide{display:none!important}
+a{color:var(--cyan)}
+.linkbtn{background:none;border:0;color:var(--cyan);font:inherit;cursor:pointer;padding:0;text-decoration:underline}
+footer{text-align:center;color:var(--mut2);font-size:11px;padding:18px}
+</style>
+</head>
+<body>
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="21" stroke="#22d3ee" stroke-width="2.5"/>
+    <path d="M6 26c5-4 8 4 13 0s8 4 13 0 6 3 10 0" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="24" cy="18" r="5" stroke="#22d3ee" stroke-width="2.5"/>
+  </svg>
+  <div class="brand">SAGAR-NETRA<small>Marine debris reporting</small></div>
+  <div class="who" id="whoTop"></div>
+</header>
+
+<main>
+<div class="wrap">
+
+  <!-- opened from disk / server down -->
+  <div class="box hide" id="offline"></div>
+
+  <!-- STEP 1: choose a portal -->
+  <section id="step1" class="hide">
+    <div class="intro">
+      <h1 id="introTitle">Welcome to SAGAR-NETRA</h1>
+      <p id="introSub">Choose how you want to use the system.</p>
+    </div>
+    <div class="portals">
+      <button class="portal" type="button" data-portal="citizen">
+        <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        <b>Citizen reporting</b>
+        <span>Fishers, beach-goers and the public: photograph debris on your phone and see what the model finds.</span>
+        <span class="who-tag">CITIZENS</span>
+        <span class="go-tag" data-go></span>
+      </button>
+      <button class="portal" type="button" data-portal="professional">
+        <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
+        <b>Dive &amp; survey reporting</b>
+        <span>Divers, ROV pilots, survey crews and researchers: multi-photo reports with dive data and map positions.</span>
+        <span class="who-tag">DIVERS · RESEARCHERS</span>
+        <span class="go-tag" data-go></span>
+      </button>
+      <button class="portal" type="button" data-portal="authority">
+        <svg viewBox="0 0 24 24" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11"/><path d="M9 21v-6h6v6"/></svg>
+        <b>Coastal authority console</b>
+        <span>Administrators: triage all reports on the map, review detections and track cleanup status.</span>
+        <span class="who-tag">ADMINISTRATORS</span>
+        <span class="go-tag" data-go></span>
+      </button>
+    </div>
+    <div class="below" id="below"></div>
+  </section>
+
+  <!-- STEP 2: sign in / register for the chosen portal -->
+  <form class="box hide" id="form" novalidate>
+    <button type="button" class="back" id="back">&larr; Back to portals</button>
+    <div><span class="ptag" id="ptag"></span></div>
+    <h2 id="title">Sign in</h2>
+    <p class="sub" id="fsub">Reports, photos and model results are saved to your account.</p>
+    <div class="tabs" role="tablist" id="tabs">
+      <button type="button" data-m="login" class="on" role="tab">Sign in</button>
+      <button type="button" data-m="register" role="tab">Create account</button>
+    </div>
+    <div class="reg hide">
+      <label for="name">Full name</label>
+      <input id="name" autocomplete="name" maxlength="100">
+    </div>
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="email" maxlength="255" required>
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" maxlength="128" required>
+    <div class="hint reg hide">At least 10 characters.</div>
+    <div class="reg hide" id="roleBox">
+      <label for="role">I am a</label>
+      <select id="role"></select>
+    </div>
+    <div class="note hide" id="adminNote">Administrator accounts cannot be created here. A project admin grants the admin role
+      (<code>npm run admin:create</code>). Sign in with an existing admin account.</div>
+    <button class="go" id="go" type="submit">Sign in</button>
+    <div class="err" id="err" role="alert"></div>
+  </form>
+
+  <!-- signed in: account tools -->
+  <div class="box hide" id="account" style="margin-top:18px">
+    <h2>Your account</h2>
+    <p class="sub" id="accWho"></p>
+    <button class="go ghost" id="btnPwToggle" type="button">Change password</button>
+    <button class="go ghost" id="btnOut" type="button">Sign out</button>
+    <form id="pwForm" class="hide" novalidate style="margin-top:14px">
+      <label for="pwCur">Current password</label>
+      <input id="pwCur" type="password" autocomplete="current-password" maxlength="128">
+      <label for="pwNew">New password</label>
+      <input id="pwNew" type="password" autocomplete="new-password" maxlength="128">
+      <div class="hint">At least 10 characters. Your other signed-in devices will be signed out.</div>
+      <label for="pwRep">Repeat new password</label>
+      <input id="pwRep" type="password" autocomplete="new-password" maxlength="128">
+      <button class="go" id="pwGo" type="submit">Save new password</button>
+      <div class="err" id="pwMsg" role="status"></div>
+    </form>
+  </div>
+
+</div>
+</main>
+
+<footer>SAGAR-NETRA · AI ghost-net &amp; marine debris detection</footer>
+
+<script src="../shared/sn-client.js"></script>
+<script>
+var $ = function(id){ return document.getElementById(id); };
+var esc = SN.esc;
+var params = new URLSearchParams(location.search);
+var next = SN.safeNext(params.get("next"));
+var ROOT = location.pathname.replace(/login\/?$/, "");
+
+/* Portal definitions: who may enter, where it leads, which roles may self-register. */
+var PORTALS = {
+  citizen:      { name:"Citizen reporting",        path:"citizen/",      allow:null,      roles:[["citizen","Citizen / fisher"]] },
+  professional: { name:"Dive & survey reporting",  path:"professional/", allow:null,      roles:[["diver","Diver / survey professional"],["researcher","Researcher"]] },
+  authority:    { name:"Coastal authority console", path:"authority/",   allow:["admin"], roles:[] }
+};
+var portal = null, mode = "login", user = null, pushed = false;
+
+function canEnter(p, u){ return !PORTALS[p].allow || PORTALS[p].allow.indexOf(u.role) !== -1; }
+function portalFromPath(path){
+  var m = /\/(citizen|professional|authority)\//.exec(path || "");
+  return m ? m[1] : null;
+}
+function enter(p){
+  /* a ?next= deep link wins when it belongs to the chosen portal */
+  location.assign(next && portalFromPath(next) === p ? next : ROOT + PORTALS[p].path);
+}
+
+/* ---------- step switching (kept in history so the browser Back button works) ---------- */
+function show(step){
+  $("step1").classList.toggle("hide", step !== 1);
+  $("form").classList.toggle("hide", step !== 2);
+  $("account").classList.toggle("hide", !(user && step === 1));
+}
+function choose(p, push){
+  if (user){
+    if (canEnter(p, user)) enter(p);
+    return;
+  }
+  portal = p;
+  var def = PORTALS[p];
+  $("ptag").textContent = def.name.toUpperCase();
+  $("title").textContent = "Sign in to " + def.name;
+  var adminOnly = def.roles.length === 0;
+  $("tabs").classList.toggle("hide", adminOnly);
+  $("adminNote").classList.toggle("hide", !adminOnly);
+  $("fsub").textContent = adminOnly ? "Administrator access only." : "Reports, photos and model results are saved to your account.";
+  $("role").innerHTML = def.roles.map(function(r){ return '<option value="'+r[0]+'">'+esc(r[1])+'</option>'; }).join("");
+  $("roleBox").classList.toggle("hide", def.roles.length < 2 || mode !== "register");
+  setMode(adminOnly ? "login" : mode);
+  if (push !== false){
+    history.pushState({portal:p}, "", "?" + new URLSearchParams(Object.assign({portal:p}, next ? {next:next} : {})).toString());
+    pushed = true;
+  }
+  show(2);
+  setTimeout(function(){ $(mode === "register" ? "name" : "email").focus(); }, 30);
+}
+function backToPortals(){
+  if (pushed){ pushed = false; history.back(); return; }      /* popstate shows step 1 */
+  /* opened directly on a form (deep link): replace the entry instead of leaving the site */
+  history.replaceState(null, "", next ? "?next=" + encodeURIComponent(next) : location.pathname);
+  portal = null; show(1);
+}
+window.addEventListener("popstate", function(e){
+  if (e.state && e.state.portal && !user) choose(e.state.portal, false);
+  else { portal = null; pushed = false; show(1); }
+});
+$("back").onclick = backToPortals;
+Array.prototype.forEach.call(document.querySelectorAll(".portal"), function(b){
+  b.onclick = function(){ choose(b.dataset.portal); };
+});
+
+/* ---------- sign in / register ---------- */
+function setMode(m){
+  mode = m;
+  Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function(b){ b.classList.toggle("on", b.dataset.m === m); });
+  Array.prototype.forEach.call(document.querySelectorAll(".reg"), function(el){ el.classList.toggle("hide", m !== "register"); });
+  if (portal) $("roleBox").classList.toggle("hide", m !== "register" || PORTALS[portal].roles.length < 2);
+  $("go").textContent = m === "login" ? "Sign in" : "Create account";
+  if (portal) $("title").textContent = (m === "login" ? "Sign in to " : "Create a ") + PORTALS[portal].name + (m === "login" ? "" : " account");
+  $("pw").setAttribute("autocomplete", m === "login" ? "current-password" : "new-password");
+  $("err").textContent = "";
+}
+Array.prototype.forEach.call(document.querySelectorAll(".tabs button"), function(b){ b.onclick = function(){ setMode(b.dataset.m); }; });
+
+$("form").onsubmit = function(e){
+  e.preventDefault();
+  var email = $("email").value.trim(), pw = $("pw").value, name = $("name").value.trim();
+  if (!email || !pw){ $("err").textContent = "Email and password are required."; return; }
+  if (mode === "register"){
+    if (name.length < 2){ $("err").textContent = "Please enter your name."; return; }
+    if (pw.length < 10){ $("err").textContent = "Password must be at least 10 characters."; return; }
+  }
+  $("go").disabled = true; $("err").textContent = "";
+  var role = PORTALS[portal].roles.length ? ($("role").value || PORTALS[portal].roles[0][0]) : undefined;
+  (mode === "login" ? SN.login(email, pw) : SN.register(name, email, pw, role)).then(function(u){
+    if (canEnter(portal, u)) { enter(portal); return; }
+    /* signed in, but this account may not use the chosen portal (e.g. a diver picking the authority console) */
+    SN.logout().then(function(){
+      $("go").disabled = false;
+      $("err").textContent = "This account (" + u.role + ") does not have access to the " + PORTALS[portal].name +
+        ". Use an administrator account, or go back and choose another portal.";
+    });
+  }, function(err){ $("go").disabled = false; $("err").textContent = err.message; });
+};
+
+/* ---------- account tools when already signed in ---------- */
+function signedInView(u){
+  user = u;
+  $("introTitle").textContent = "Welcome back, " + u.name;
+  $("introSub").textContent = "Choose where to go.";
+  $("whoTop").textContent = u.email + " · " + u.role;
+  $("accWho").textContent = u.name + " · " + u.email + " · " + u.role;
+  Array.prototype.forEach.call(document.querySelectorAll(".portal"), function(b){
+    var ok = canEnter(b.dataset.portal, u);
+    b.disabled = !ok;
+    b.querySelector("[data-go]").textContent = ok ? "Open →" : "Administrators only";
+  });
+  $("btnOut").onclick = function(){ SN.logout().then(function(){ location.replace(location.pathname); }); };
+  $("btnPwToggle").onclick = function(){ $("pwForm").classList.toggle("hide"); $("pwCur").focus(); };
+  if (params.get("change") === "password") $("pwForm").classList.remove("hide");
+  $("pwForm").onsubmit = function(e){
+    e.preventDefault();
+    var msg = $("pwMsg"), cur = $("pwCur").value, nw = $("pwNew").value;
+    msg.classList.remove("ok");
+    if (!cur || !nw){ msg.textContent = "Enter your current and new password."; return; }
+    if (nw.length < 10){ msg.textContent = "New password must be at least 10 characters."; return; }
+    if (nw !== $("pwRep").value){ msg.textContent = "The new passwords do not match."; return; }
+    $("pwGo").disabled = true; msg.textContent = "";
+    SN.api("/api/users/me/password", {method:"POST", body:{current_password:cur, new_password:nw}}).then(function(){
+      $("pwGo").disabled = false;
+      $("pwCur").value = $("pwNew").value = $("pwRep").value = "";
+      msg.classList.add("ok");
+      msg.textContent = "Password changed. Use the new password next time you sign in.";
+    }, function(err){ $("pwGo").disabled = false; msg.textContent = err.message; });
+  };
+  show(1);
+}
+
+function offline(html){ $("offline").innerHTML = html; $("offline").classList.remove("hide"); }
+
+if (location.protocol === "file:"){
+  offline("<h2>Open through the server</h2><p class='sub'>This page was opened directly from disk, so it cannot sign you in. " +
+    "Start the SAGAR-NETRA services (see README) and open <a href='http://127.0.0.1:4000/'>http://127.0.0.1:4000/</a>.</p>");
+} else {
+  SN.me().then(function(u){
+    if (u){ signedInView(u); return; }
+    $("below").innerHTML = "New here? Choose a portal, then <b>Create account</b>.";
+    var preset = params.get("portal") || portalFromPath(next);
+    if (params.get("mode") === "register") mode = "register";
+    if (preset && PORTALS[preset]){ history.replaceState({portal:preset}, "", location.search); choose(preset, false); }
+    else show(1);
+  }, function(){
+    offline("<h2>Server unreachable</h2><p class='sub'>Cannot reach the SAGAR-NETRA backend. Make sure it is running, then <a href=''>retry</a>.</p>");
+  });
+}
+</script>
+</body>
+</html>

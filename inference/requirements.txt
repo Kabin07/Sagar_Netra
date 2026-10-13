@@ -1,0 +1,10 @@
+# SAGAR-NETRA inference service. Verified with Python 3.12, ultralytics 8.4.174,
+# torch 2.14.1 (CPU) and opencv-python 5.0.0. The service itself uses only the
+# standard library HTTP server, so no web framework is required.
+#
+# GPU (optional, NVIDIA): install torch/torchvision from the CUDA index first, e.g.
+#   python -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+ultralytics>=8.3,<9
+opencv-python>=4.8
+numpy>=1.26
+torch>=2.2

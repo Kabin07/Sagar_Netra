@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAGAR-NETRA · Operations Console</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{
+  --bg:#03101a; --panel:#0a2030; --card:#0e2b3f; --line:#17415c; --line2:#1e5578;
+  --ink:#eaf6fb; --mut:#8fb3c7; --mut2:#5f8298;
+  --cyan:#22d3ee; --teal:#0e7490; --coral:#fb7185; --amber:#fbbf24; --green:#34d399; --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:flex;flex-direction:column;height:100vh;overflow:hidden;
+}
+
+/* header */
+header{
+  display:flex;align-items:center;gap:14px;padding:12px 18px;
+  background:var(--panel);border-bottom:1px solid var(--line);flex:none;
+}
+.logo{width:30px;height:30px;flex:none}
+.brand{font-weight:700;font-size:15.5px;letter-spacing:.4px;line-height:1.2}
+.brand small{display:block;font-weight:400;font-size:10.5px;color:var(--mut);letter-spacing:.3px}
+nav{display:flex;gap:4px;margin-left:22px}
+nav button{
+  background:transparent;border:0;color:var(--mut);padding:8px 14px;border-radius:8px;
+  font-size:13.5px;font-weight:600;cursor:pointer
+}
+nav button.on{background:var(--card);color:var(--cyan)}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mut)}
+.av{width:30px;height:30px;border-radius:99px;background:var(--teal);display:grid;place-items:center;font-weight:700;color:#fff;font-size:12px}
+.live{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--green)}
+.live i{width:7px;height:7px;border-radius:99px;background:var(--green);display:block;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:12px 18px;flex:none}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.stat .n{font-size:21px;font-weight:700;line-height:1.1}
+.stat .l{font-size:11px;color:var(--mut);margin-top:3px;letter-spacing:.3px}
+.stat .d{font-size:10.5px;margin-top:4px}
+.up{color:var(--coral)} .dn{color:var(--green)}
+
+/* layout */
+.wrap{flex:1;display:grid;grid-template-columns:330px 1fr 0;min-height:0;transition:grid-template-columns .22s}
+.wrap.open{grid-template-columns:330px 1fr 340px}
+aside,section.map,.detail{min-height:0;overflow:hidden}
+aside{border-right:1px solid var(--line);display:flex;flex-direction:column;background:var(--panel)}
+.filters{padding:11px 13px;border-bottom:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap;flex:none}
+.filters button{
+  background:var(--card);border:1px solid var(--line);color:var(--mut);
+  padding:5px 10px;border-radius:99px;font-size:11.5px;font-weight:600;cursor:pointer
+}
+.filters button.on{background:var(--teal);color:#fff;border-color:var(--cyan)}
+.queue{overflow-y:auto;flex:1}
+.item{padding:11px 13px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:10px}
+.item:hover{background:var(--card)}
+.item.sel{background:var(--card);box-shadow:inset 3px 0 0 var(--cyan)}
+.item img{width:46px;height:46px;border-radius:8px;object-fit:cover;flex:none;background:#000}
+.item .m{flex:1;min-width:0}
+.item .t{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.item .s{font-size:11px;color:var(--mut);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sev{width:8px;height:8px;border-radius:99px;flex:none}
+.s-high{background:var(--coral)} .s-med{background:var(--amber)} .s-low{background:var(--green)}
+.tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:99px;letter-spacing:.3px}
+.t-new{background:#123044;color:var(--cyan)}
+.t-ack{background:#4a3a12;color:var(--amber)}
+.t-res{background:#12402f;color:var(--green)}
+.src{font-size:9.5px;padding:2px 6px;border-radius:99px;background:#20304a;color:var(--violet);font-weight:700}
+
+/* map */
+section.map{position:relative}
+#map{position:absolute;inset:0;background:#04141f}
+.legend{
+  position:absolute;left:12px;bottom:22px;z-index:500;background:rgba(10,32,48,.94);
+  border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:11.5px
+}
+.legend div{display:flex;align-items:center;gap:7px;margin:3px 0;color:var(--mut)}
+.maptip{
+  position:absolute;right:12px;top:12px;z-index:500;background:rgba(10,32,48,.94);
+  border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:11.5px;color:var(--mut);max-width:230px
+}
+
+/* detail */
+.detail{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto}
+.detail .hd{padding:13px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+.detail .hd b{font-size:14px}
+.detail .hd button{margin-left:auto;background:transparent;border:0;color:var(--mut);font-size:19px;cursor:pointer;line-height:1}
+.detail .bd{padding:13px}
+.detail img.big{width:100%;border-radius:10px;border:1px solid var(--line);background:#000;display:block}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.kv:last-of-type{border-bottom:0}
+.kv span:first-child{color:var(--mut)}
+.kv span:last-child{text-align:right;font-weight:600}
+.det{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--card);margin-bottom:6px;font-size:12.5px}
+.bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;background:var(--cyan)}
+.acts{display:flex;gap:7px;margin-top:13px}
+.acts button{flex:1;padding:10px;border-radius:9px;border:0;font-size:12.5px;font-weight:700;cursor:pointer}
+.b1{background:var(--cyan);color:#04141f}
+.b2{background:var(--card);color:var(--ink);border:1px solid var(--line)!important}
+.wa{margin-top:11px;background:#0d3b2e;border:1px solid #17694f;border-radius:10px;padding:10px;font-size:11.5px;color:#9fe8c8}
+.wa b{color:#4ade80;display:block;margin-bottom:4px;font-size:11px;letter-spacing:.4px}
+.wa code{display:block;white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:10.5px;color:#c9f5e2;margin-top:5px;line-height:1.5}
+
+/* survey tab */
+.survey{flex:1;overflow-y:auto;padding:20px;display:none}
+.survey.on{display:block}
+.wrap.off{display:none}
+.sv{max-width:900px;margin:0 auto}
+.drop{
+  border:2px dashed var(--teal);border-radius:14px;padding:38px 20px;text-align:center;
+  background:linear-gradient(160deg,#103b54,#0b2a3d);cursor:pointer
+}
+.drop.hot{border-color:var(--cyan);background:#14465f}
+.drop svg{width:42px;height:42px;stroke:var(--cyan);fill:none;margin-bottom:9px}
+.drop b{display:block;font-size:15px;margin-bottom:4px}
+.drop small{color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.tile canvas,.tile img{width:100%;display:block;background:#000}
+.tile .f{padding:9px 10px;font-size:11.5px}
+.tile .f b{font-size:12.5px;display:block;margin-bottom:3px}
+h3{font-size:14px;margin:22px 0 10px;letter-spacing:.3px}
+.note{color:var(--mut);font-size:12.5px;margin:0 0 14px}
+.pipe{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}
+.pl{flex:1;min-width:180px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px}
+.pl .n{font-size:10.5px;color:var(--cyan);font-weight:700;letter-spacing:.5px}
+.pl .t{font-size:13px;font-weight:600;margin:5px 0 3px}
+.pl .d{font-size:11.5px;color:var(--mut);line-height:1.45}
+.empty{color:var(--mut);text-align:center;padding:28px 14px;font-size:13px}
+
+/* survey metadata form */
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px;margin-bottom:16px}
+.mf{display:flex;flex-direction:column;gap:5px}
+.mf.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;flex-wrap:wrap}
+.mf label{font-size:11px;color:var(--mut);letter-spacing:.4px;font-weight:600}
+.mf input[type=text],.mf input[type=number],.mf input[type=datetime-local]{
+  background:var(--card);border:1px solid var(--line);border-radius:9px;
+  padding:9px 10px;color:var(--ink);font:inherit;font-size:13px;width:100%
+}
+.mf input:focus{outline:none;border-color:var(--cyan)}
+.chk{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);font-weight:400;letter-spacing:0}
+.chk input{accent-color:var(--cyan);width:15px;height:15px}
+.mini{background:var(--card);border:1px solid var(--line);color:var(--cyan);
+  padding:7px 12px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--cyan)}
+.exifnote{font-size:11.5px;color:var(--green)}
+.tile .meta-row{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--mut);margin-top:4px}
+.tile .addbtn{width:100%;margin-top:8px;padding:7px;border:0;border-radius:7px;
+  background:var(--teal);color:#fff;font-size:11.5px;font-weight:700;cursor:pointer}
+.tile .addbtn:disabled{background:#1b3d4f;color:var(--mut2);cursor:default}
+/* Narrow screens: the detail panel would crush the map, so overlay it instead. */
+@media (max-width:1180px){
+  .wrap.open{grid-template-columns:330px 1fr 0}
+  .detail{
+    position:fixed;right:0;top:0;bottom:0;width:340px;z-index:900;
+    box-shadow:-14px 0 34px rgba(0,0,0,.55);
+    transform:translateX(100%);transition:transform .22s;
+  }
+  .wrap.open .detail{transform:none}
+}
+@media (max-width:900px){
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .wrap,.wrap.open{grid-template-columns:270px 1fr 0}
+}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0e2b3f;color:var(--ink);border:1px solid var(--line)}
+.leaflet-popup-content{margin:9px 11px;font-size:12.5px}
+.leaflet-container{background:#04141f}
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="21" stroke="#22d3ee" stroke-width="2.5"/>
+    <path d="M6 26c5-4 8 4 13 0s8 4 13 0 6 3 10 0" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="24" cy="18" r="5" stroke="#22d3ee" stroke-width="2.5"/>
+  </svg>
+  <div class="brand">SAGAR-NETRA<small>Government Portal · Coastal Operations</small></div>
+  <nav>
+    <button id="tabOps" class="on">Public Reports</button>
+  </nav>
+  <div class="who">
+    <span class="live"><i></i>LIVE</span>
+    <span>Tamil Nadu Coastal Zone</span>
+    <span class="av">DK</span>
+  </div>
+</header>
+
+<div class="stats">
+  <div class="stat"><div class="n" id="kTot">—</div><div class="l">ACTIVE REPORTS</div><div class="d up" id="kTotD">—</div></div>
+  <div class="stat"><div class="n" id="kNet" style="color:var(--coral)">—</div><div class="l">GHOST NETS</div><div class="d up">highest priority</div></div>
+  <div class="stat"><div class="n" id="kNew">—</div><div class="l">AWAITING TRIAGE</div><div class="d">unassigned</div></div>
+  <div class="stat"><div class="n" id="kRes" style="color:var(--green)">—</div><div class="l">RESOLVED (30d)</div><div class="d dn">cleared</div></div>
+  <div class="stat"><div class="n" id="kArea">—</div><div class="l">EST. DEBRIS AREA</div><div class="d">from mask pixels</div></div>
+</div>
+
+<div class="wrap" id="wrap">
+  <aside>
+    <div class="filters" id="filters">
+      <button data-f="all" class="on">All</button>
+      <button data-f="new">New</button>
+      <button data-f="ack">Assigned</button>
+      <button data-f="resolved">Resolved</button>
+      <button data-f="net">Ghost nets</button>
+      <button data-f="citizen">Citizen</button>
+      <button data-f="pro">Professional</button>
+    </div>
+    <div class="queue" id="queue"></div>
+  </aside>
+
+  <section class="map">
+    <div id="map"></div>
+    <div class="maptip">Layer 3 — GIS. Pins are geotagged reports, sized by estimated debris area and coloured by severity. Click a pin to open the report.</div>
+    <div class="legend">
+      <div><span class="sev s-high"></span> High — ghost net / large debris</div>
+      <div><span class="sev s-med"></span> Medium — rope, bags, containers</div>
+      <div><span class="sev s-low"></span> Low — isolated small items</div>
+    </div>
+  </section>
+
+  <div class="detail" id="detail"></div>
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+var $ = function(id){ return document.getElementById(id); };
+
+/* Backend base URL. Empty = same origin. The frontends work fully WITHOUT a
+   backend: every fetch below degrades gracefully to local/simulated behaviour. */
+var API = "";
+
+/* ---------------- mock reports (replace with GET /api/reports) ---------------- */
+var SITES = [
+  ["Marina Beach, Chennai",        13.0500, 80.2824],
+  ["Kasimedu Harbour, Chennai",    13.1270, 80.2960],
+  ["Fort Kochi, Kerala",            9.9650, 76.2420],
+  ["Vypin Island, Kochi",           9.9800, 76.2200],
+  ["Rameswaram, Tamil Nadu",        9.2876, 79.3129],
+  ["Kanyakumari",                   8.0883, 77.5385],
+  ["Visakhapatnam Port",           17.6900, 83.2900],
+  ["Panaji, Goa",                  15.4909, 73.8278],
+  ["Versova, Mumbai",              19.1340, 72.8120],
+  ["Mangaluru, Karnataka",         12.9141, 74.8560],
+  ["Puri, Odisha",                 19.8135, 85.8312],
+  ["Digha, West Bengal",           21.6270, 87.5090]
+];
+var KINDS = [
+  ["trash_net",       "Ghost net",     "high", 0.90],
+  ["trash_net",       "Ghost net",     "high", 0.82],
+  ["trash_rope",      "Rope bundle",   "med",  0.71],
+  ["trash_bag",       "Plastic bags",  "med",  0.77],
+  ["trash_container", "Container",     "med",  0.74],
+  ["trash_bottle",    "Bottles",       "low",  0.63],
+  ["trash_wreckage",  "Wreckage",      "high", 0.79]
+];
+var STATUS = ["new","new","ack","ack","resolved"];
+var SRC = ["citizen","citizen","pro"];
+
+function ph(sev){
+  /* inline SVG placeholder standing in for the real detection frame */
+  var c = sev==="high" ? "#fb7185" : sev==="med" ? "#fbbf24" : "#34d399";
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="140">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#0b3b52"/><stop offset="1" stop-color="#062231"/></linearGradient></defs>' +
+    '<rect width="200" height="140" fill="url(#g)"/>' +
+    '<path d="M0 96c26-13 40 11 62 2s38 12 60 2 44 7 78-6v46H0z" fill="#0a2c3f" opacity=".85"/>' +
+    '<rect x="58" y="40" width="74" height="52" fill="none" stroke="' + c + '" stroke-width="2.5" rx="3"/>' +
+    '<path d="M66 62c10-8 20 6 30-2s16 8 28 2" fill="none" stroke="' + c + '" stroke-width="2.5" opacity=".85"/>' +
+    '<circle cx="150" cy="34" r="7" fill="#22d3ee" opacity=".5"/></svg>';
+  return "data:image/svg+xml;base64," + btoa(s);
+}
+
+var REPORTS = [];
+(function seed(){
+  var now = Date.now();
+  for (var i=0;i<14;i++){
+    var st = SITES[i % SITES.length];
+    var k  = KINDS[Math.floor(Math.random()*KINDS.length)];
+    var status = STATUS[Math.floor(Math.random()*STATUS.length)];
+    var src = SRC[Math.floor(Math.random()*SRC.length)];
+    var area = Math.round((k[2]==="high" ? 40+Math.random()*180 : k[2]==="med" ? 12+Math.random()*50 : 3+Math.random()*14));
+    REPORTS.push({
+      id:"SN-" + (7100+i).toString(36).toUpperCase(),
+      site:st[0],
+      lat:+(st[1] + (Math.random()-.5)*0.06).toFixed(5),
+      lng:+(st[2] + (Math.random()-.5)*0.06).toFixed(5),
+      cls:k[0], label:k[1], sev:k[2],
+      conf:+(k[3] + (Math.random()-.5)*0.12).toFixed(2),
+      area:area,
+      status:status, src:src,
+      ts: now - Math.floor(Math.random()*72)*3600*1000,
+      note: src==="pro" ? "ROV transect survey, 12 m depth" : "Spotted while returning to harbour",
+      by: src==="pro" ? "CMFRI survey unit" : "Citizen report",
+      img: ph(k[2])
+    });
+  }
+  REPORTS.sort(function(a,b){ return b.ts - a.ts; });
+})();
+
+/* ---------------- map ---------------- */
+var map = L.map("map", {zoomControl:true, attributionControl:true}).setView([13.05, 80.28], 6);
+L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+  attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19, subdomains:"abcd"
+}).addTo(map);
+
+var markers = {};
+function sevColor(s){ return s==="high" ? "#fb7185" : s==="med" ? "#fbbf24" : "#34d399"; }
+
+function plot(list){
+  Object.keys(markers).forEach(function(k){ map.removeLayer(markers[k]); });
+  markers = {};
+  list.forEach(function(r){
+    var rad = 6 + Math.min(16, Math.sqrt(r.area)*1.1);
+    var m = L.circleMarker([r.lat, r.lng], {
+      radius:rad, color:sevColor(r.sev), weight:2,
+      fillColor:sevColor(r.sev), fillOpacity: r.status==="resolved" ? 0.12 : 0.38
+    }).addTo(map);
+    m.bindPopup("<b>"+r.label+"</b> · "+(r.conf*100).toFixed(0)+"%<br>"+r.site+
+                (r.depth != null && !isNaN(r.depth) ? "<br>Depth: "+r.depth+" m" : "") +
+                "<br>"+new Date(r.ts).toLocaleString()+
+                "<br><span style='color:#8fb3c7'>"+r.id+" · ~"+r.area+" m² · "+r.status+"</span>");
+    m.on("click", function(){ open(r.id); });
+    markers[r.id] = m;
+  });
+}
+
+/* ---------------- queue ---------------- */
+var filter = "all", selected = null;
+function pass(r){
+  if (filter==="all") return true;
+  if (filter==="net") return r.cls==="trash_net";
+  if (filter==="citizen"||filter==="pro") return r.src===filter;
+  return r.status===filter;
+}
+function ago(t){
+  var m = Math.floor((Date.now()-t)/60000);
+  if (m<60) return m+"m ago";
+  var h = Math.floor(m/60);
+  if (h<24) return h+"h ago";
+  return Math.floor(h/24)+"d ago";
+}
+function renderQueue(){
+  var list = REPORTS.filter(pass);
+  $("queue").innerHTML = list.length ? list.map(function(r){
+    var tg = r.status==="resolved" ? "t-res" : r.status==="ack" ? "t-ack" : "t-new";
+    var lbl = r.status==="resolved" ? "RESOLVED" : r.status==="ack" ? "ASSIGNED" : "NEW";
+    return '<div class="item'+(selected===r.id?" sel":"")+'" data-id="'+r.id+'">' +
+      '<img src="'+r.img+'" alt="">' +
+      '<div class="m"><div class="t"><span class="sev s-'+r.sev+'"></span>'+r.label +
+      '<span class="tag '+tg+'">'+lbl+'</span></div>' +
+      '<div class="s">'+r.site+'</div>' +
+      '<div class="s">'+r.id+' · '+ago(r.ts)+' · <span class="src">'+(r.src==="pro"?"PRO":"CITIZEN")+'</span></div>' +
+      '</div></div>';
+  }).join("") : '<div class="empty">No reports match this filter.</div>';
+  Array.prototype.forEach.call($("queue").querySelectorAll(".item"), function(el){
+    el.onclick = function(){ open(el.dataset.id); };
+  });
+  plot(list);
+  stats();
+}
+Array.prototype.forEach.call($("filters").querySelectorAll("button"), function(b){
+  b.onclick = function(){
+    Array.prototype.forEach.call($("filters").querySelectorAll("button"), function(x){ x.classList.remove("on"); });
+    b.classList.add("on");
+    filter = b.dataset.f;
+    renderQueue();
+  };
+});
+
+/* ---------------- detail ---------------- */
+function open(id){
+  var r = REPORTS.filter(function(x){ return x.id===id; })[0];
+  if (!r) return;
+  selected = id;
+  $("wrap").classList.add("open");
+  var waMsg =
+    "SAGAR-NETRA ALERT " + r.id + "\n" +
+    r.label + " detected (" + (r.conf*100).toFixed(0) + "% confidence)\n" +
+    "Location: " + r.lat + ", " + r.lng + "\n" +
+    r.site + "\n" +
+    "Est. area: ~" + r.area + " m sq | Severity: " + r.sev.toUpperCase() + "\n" +
+    "Reported: " + new Date(r.ts).toLocaleString();
+
+  $("detail").innerHTML =
+    '<div class="hd"><span class="sev s-'+r.sev+'"></span><b>'+r.label+'</b>' +
+    '<button id="cls">&times;</button></div>' +
+    '<div class="bd">' +
+      '<img class="big" src="'+r.img+'" alt="">' +
+      '<div class="det" style="margin-top:11px"><span class="sev s-'+r.sev+'"></span>' +
+        '<span>'+r.label+'</span>' +
+        '<span style="margin-left:auto;color:var(--mut)">'+(r.conf*100).toFixed(0)+'%</span></div>' +
+      '<div class="bar"><i style="width:'+(r.conf*100)+'%"></i></div>' +
+      '<div style="margin-top:13px">' +
+        kv("Report ID", r.id) +
+        kv("Source", r.src==="pro" ? "Professional survey" : "Citizen app") +
+        kv("Reported by", r.by) +
+        kv("Location", r.site) +
+        kv("Coordinates", r.lat + ", " + r.lng) +
+        (r.depth != null && !isNaN(r.depth) ? kv("Depth", r.depth + " m") : "") +
+        kv("Est. debris area", "~" + r.area + " m²") +
+        kv("Severity", r.sev.toUpperCase()) +
+        kv("Received", new Date(r.ts).toLocaleString()) +
+        kv("Status", r.status.toUpperCase()) +
+      '</div>' +
+      '<div style="margin-top:11px;font-size:12.5px;color:var(--mut)">' + r.note + '</div>' +
+      '<div class="acts">' +
+        '<button class="b1" id="assign">'+(r.status==="new"?"Dispatch cleanup team":"Mark cleared")+'</button>' +
+        '<button class="b2" id="zoom">Zoom to pin</button>' +
+      '</div>' +
+      '<div class="wa"><b>WHATSAPP ALERT PAYLOAD</b>' +
+        'Queued to the response unit and the reporting citizen.' +
+        '<code>' + waMsg.replace(/&/g,"&amp;").replace(/</g,"&lt;") + '</code></div>' +
+    '</div>';
+
+  $("cls").onclick = function(){ $("wrap").classList.remove("open"); selected=null; renderQueue(); };
+  $("zoom").onclick = function(){ map.setView([r.lat, r.lng], 12); markers[r.id] && markers[r.id].openPopup(); };
+  $("assign").onclick = function(){
+    r.status = r.status==="new" ? "ack" : "resolved";
+    renderQueue();
+    open(r.id);
+  };
+  renderQueue();
+  map.setView([r.lat, r.lng], Math.max(map.getZoom(), 9));
+}
+function kv(k,v){ return '<div class="kv"><span>'+k+'</span><span>'+v+'</span></div>'; }
+
+/* ---------------- stats ---------------- */
+function stats(){
+  var act = REPORTS.filter(function(r){ return r.status!=="resolved"; });
+  $("kTot").textContent  = act.length;
+  $("kTotD").textContent = "+" + REPORTS.filter(function(r){ return Date.now()-r.ts < 864e5; }).length + " in 24h";
+  $("kNet").textContent  = REPORTS.filter(function(r){ return r.cls==="trash_net" && r.status!=="resolved"; }).length;
+  $("kNew").textContent  = REPORTS.filter(function(r){ return r.status==="new"; }).length;
+  $("kRes").textContent  = REPORTS.filter(function(r){ return r.status==="resolved"; }).length;
+  var a = act.reduce(function(s,r){ return s + r.area; }, 0);
+  $("kArea").textContent = a.toLocaleString() + " m²";
+}
+
+
+/* ---------------- live backend feed ---------------- */
+function loadLive(){
+  fetch(API + "/api/reports")
+    .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(rows){
+      if (!rows || !rows.length) return;              /* keep seed data */
+      var live = rows.map(function(r){
+        var top = r.top || {};
+        return {
+          id:r.id, site:r.site || "Unlocated",
+          lat: r.lat != null ? r.lat : 13.05,
+          lng: r.lng != null ? r.lng : 80.28,
+          cls: top.cls || "trash_unknown_instance",
+          label: top.label || "Debris",
+          sev: r.severity === "none" ? "low" : r.severity,
+          conf: top.conf || 0,
+          area: Math.max(1, Math.round((top.area_frac || 0.02) * 800)),
+          status: r.status || "new",
+          src: r.source || "citizen",
+          ts: r.ts,
+          note: r.note || "",
+          by: (r.source === "pro") ? "Field survey unit" : "Citizen app",
+          img: r.thumb || ph(r.severity === "none" ? "low" : r.severity)
+        };
+      });
+      REPORTS = live.concat(REPORTS);
+      var seen = {};
+      REPORTS = REPORTS.filter(function(r){
+        if (seen[r.id]) return false;
+        seen[r.id] = 1;
+        return true;
+      });
+      REPORTS.sort(function(a,b){ return b.ts - a.ts; });
+      renderQueue();
+      document.querySelector(".live").innerHTML = '<i></i>LIVE · backend connected';
+    })
+    .catch(function(){
+      document.querySelector(".live").innerHTML =
+        '<i style="background:var(--amber)"></i><span style="color:var(--amber)">SAMPLE DATA</span>';
+    });
+}
+
+renderQueue();
+loadLive();
+setInterval(loadLive, 15000);
+</script>
+</body>
+</html>

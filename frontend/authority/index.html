@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SAGAR-NETRA · Operations Console</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{
+  --bg:#03101a; --panel:#0a2030; --card:#0e2b3f; --line:#17415c; --line2:#1e5578;
+  --ink:#eaf6fb; --mut:#8fb3c7; --mut2:#5f8298;
+  --cyan:#22d3ee; --teal:#0e7490; --coral:#fb7185; --amber:#fbbf24; --green:#34d399; --violet:#a78bfa;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  display:flex;flex-direction:column;height:100vh;overflow:hidden;
+}
+
+/* header */
+header{
+  display:flex;align-items:center;gap:14px;padding:12px 18px;
+  background:var(--panel);border-bottom:1px solid var(--line);flex:none;
+}
+.logo{width:30px;height:30px;flex:none}
+.brand{font-weight:700;font-size:15.5px;letter-spacing:.4px;line-height:1.2}
+.brand small{display:block;font-weight:400;font-size:10.5px;color:var(--mut);letter-spacing:.3px}
+nav{display:flex;gap:4px;margin-left:22px}
+nav button{
+  background:transparent;border:0;color:var(--mut);padding:8px 14px;border-radius:8px;
+  font-size:13.5px;font-weight:600;cursor:pointer
+}
+nav button.on{background:var(--card);color:var(--cyan)}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mut)}
+.av{width:30px;height:30px;border-radius:99px;background:var(--teal);display:grid;place-items:center;font-weight:700;color:#fff;font-size:12px}
+.live{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--green)}
+.live i{width:7px;height:7px;border-radius:99px;background:var(--green);display:block;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.35}}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:12px 18px;flex:none}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.stat .n{font-size:21px;font-weight:700;line-height:1.1}
+.stat .l{font-size:11px;color:var(--mut);margin-top:3px;letter-spacing:.3px}
+.stat .d{font-size:10.5px;margin-top:4px}
+.up{color:var(--coral)} .dn{color:var(--green)}
+
+/* layout */
+.wrap{flex:1;display:grid;grid-template-columns:330px 1fr 0;min-height:0;transition:grid-template-columns .22s}
+.wrap.open{grid-template-columns:330px 1fr 340px}
+aside,section.map,.detail{min-height:0;overflow:hidden}
+aside{border-right:1px solid var(--line);display:flex;flex-direction:column;background:var(--panel)}
+.filters{padding:11px 13px;border-bottom:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap;flex:none}
+.filters button{
+  background:var(--card);border:1px solid var(--line);color:var(--mut);
+  padding:5px 10px;border-radius:99px;font-size:11.5px;font-weight:600;cursor:pointer
+}
+.filters button.on{background:var(--teal);color:#fff;border-color:var(--cyan)}
+.queue{overflow-y:auto;flex:1}
+.item{padding:11px 13px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:10px}
+.item:hover{background:var(--card)}
+.item.sel{background:var(--card);box-shadow:inset 3px 0 0 var(--cyan)}
+.item img{width:46px;height:46px;border-radius:8px;object-fit:cover;flex:none;background:#000}
+.item .m{flex:1;min-width:0}
+.item .t{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.item .s{font-size:11px;color:var(--mut);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sev{width:8px;height:8px;border-radius:99px;flex:none}
+.s-high{background:var(--coral)} .s-med{background:var(--amber)} .s-low{background:var(--green)} .s-none{background:var(--mut2)} .s-unk{background:#8b98a5}
+.tag{font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:99px;letter-spacing:.3px}
+.t-new{background:#123044;color:var(--cyan)}
+.t-ack{background:#4a3a12;color:var(--amber)}
+.t-res{background:#12402f;color:var(--green)}
+.src{font-size:9.5px;padding:2px 6px;border-radius:99px;background:#20304a;color:var(--violet);font-weight:700}
+
+/* map */
+section.map{position:relative}
+#map{position:absolute;inset:0;background:#04141f}
+.legend{
+  position:absolute;left:12px;bottom:22px;z-index:500;background:rgba(10,32,48,.94);
+  border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:11.5px
+}
+.legend div{display:flex;align-items:center;gap:7px;margin:3px 0;color:var(--mut)}
+.maptip{
+  position:absolute;right:12px;top:12px;z-index:500;background:rgba(10,32,48,.94);
+  border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:11.5px;color:var(--mut);max-width:230px
+}
+
+/* detail */
+.detail{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto}
+.detail .hd{padding:13px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:9px}
+.detail .hd b{font-size:14px}
+.detail .hd button{margin-left:auto;background:transparent;border:0;color:var(--mut);font-size:19px;cursor:pointer;line-height:1}
+.detail .bd{padding:13px}
+.detail img.big{width:100%;border-radius:10px;border:1px solid var(--line);background:#000;display:block}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.kv:last-of-type{border-bottom:0}
+.kv span:first-child{color:var(--mut)}
+.kv span:last-child{text-align:right;font-weight:600}
+.det{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:var(--card);margin-bottom:6px;font-size:12.5px}
+.bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;background:var(--cyan)}
+.acts{display:flex;gap:7px;margin-top:13px}
+.acts button{flex:1;padding:10px;border-radius:9px;border:0;font-size:12.5px;font-weight:700;cursor:pointer}
+.b1{background:var(--cyan);color:#04141f}
+.b2{background:var(--card);color:var(--ink);border:1px solid var(--line)!important}
+.wa{margin-top:11px;background:#0d3b2e;border:1px solid #17694f;border-radius:10px;padding:10px;font-size:11.5px;color:#9fe8c8}
+.wa b{color:#4ade80;display:block;margin-bottom:4px;font-size:11px;letter-spacing:.4px}
+.wa code{display:block;white-space:pre-wrap;font-family:ui-monospace,monospace;font-size:10.5px;color:#c9f5e2;margin-top:5px;line-height:1.5}
+
+/* survey tab */
+.survey{flex:1;overflow-y:auto;padding:20px;display:none}
+.survey.on{display:block}
+.wrap.off{display:none}
+.sv{max-width:900px;margin:0 auto}
+.drop{
+  border:2px dashed var(--teal);border-radius:14px;padding:38px 20px;text-align:center;
+  background:linear-gradient(160deg,#103b54,#0b2a3d);cursor:pointer
+}
+.drop.hot{border-color:var(--cyan);background:#14465f}
+.drop svg{width:42px;height:42px;stroke:var(--cyan);fill:none;margin-bottom:9px}
+.drop b{display:block;font-size:15px;margin-bottom:4px}
+.drop small{color:var(--mut)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:16px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+.tile canvas,.tile img{width:100%;display:block;background:#000}
+.tile .f{padding:9px 10px;font-size:11.5px}
+.tile .f b{font-size:12.5px;display:block;margin-bottom:3px}
+h3{font-size:14px;margin:22px 0 10px;letter-spacing:.3px}
+.note{color:var(--mut);font-size:12.5px;margin:0 0 14px}
+.pipe{display:flex;gap:10px;margin:14px 0 0;flex-wrap:wrap}
+.pl{flex:1;min-width:180px;background:var(--card);border:1px solid var(--line);border-radius:11px;padding:12px}
+.pl .n{font-size:10.5px;color:var(--cyan);font-weight:700;letter-spacing:.5px}
+.pl .t{font-size:13px;font-weight:600;margin:5px 0 3px}
+.pl .d{font-size:11.5px;color:var(--mut);line-height:1.45}
+.empty{color:var(--mut);text-align:center;padding:28px 14px;font-size:13px}
+
+/* survey metadata form */
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:11px;margin-bottom:16px}
+.mf{display:flex;flex-direction:column;gap:5px}
+.mf.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px;flex-wrap:wrap}
+.mf label{font-size:11px;color:var(--mut);letter-spacing:.4px;font-weight:600}
+.mf input[type=text],.mf input[type=number],.mf input[type=datetime-local]{
+  background:var(--card);border:1px solid var(--line);border-radius:9px;
+  padding:9px 10px;color:var(--ink);font:inherit;font-size:13px;width:100%
+}
+.mf input:focus{outline:none;border-color:var(--cyan)}
+.chk{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut);font-weight:400;letter-spacing:0}
+.chk input{accent-color:var(--cyan);width:15px;height:15px}
+.mini{background:var(--card);border:1px solid var(--line);color:var(--cyan);
+  padding:7px 12px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer}
+.mini:hover{border-color:var(--cyan)}
+.exifnote{font-size:11.5px;color:var(--green)}
+.tile .meta-row{display:flex;justify-content:space-between;gap:8px;font-size:10.5px;color:var(--mut);margin-top:4px}
+.tile .addbtn{width:100%;margin-top:8px;padding:7px;border:0;border-radius:7px;
+  background:var(--teal);color:#fff;font-size:11.5px;font-weight:700;cursor:pointer}
+.tile .addbtn:disabled{background:#1b3d4f;color:var(--mut2);cursor:default}
+/* Narrow screens: the detail panel would crush the map, so overlay it instead. */
+@media (max-width:1180px){
+  .wrap.open{grid-template-columns:330px 1fr 0}
+  .detail{
+    position:fixed;right:0;top:0;bottom:0;width:340px;z-index:900;
+    box-shadow:-14px 0 34px rgba(0,0,0,.55);
+    transform:translateX(100%);transition:transform .22s;
+  }
+  .wrap.open .detail{transform:none}
+}
+@media (max-width:900px){
+  .stats{grid-template-columns:repeat(3,1fr)}
+  .wrap,.wrap.open{grid-template-columns:270px 1fr 0}
+}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0e2b3f;color:var(--ink);border:1px solid var(--line)}
+.leaflet-popup-content{margin:9px 11px;font-size:12.5px}
+.leaflet-container{background:#04141f}
+.dsel{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;font-size:11px;padding:2px 4px;margin-left:6px}
+.cls{font-family:ui-monospace,monospace;font-size:10px;color:var(--mut2)}
+.warnbox{margin-top:10px;background:#2d250c;border:1px solid #6b5414;border-radius:10px;padding:9px;font-size:11.5px;color:var(--amber)}
+.thumbs2{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.thumbs2 img{width:60px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:pointer}
+.thumbs2 img.on{border-color:var(--cyan)}
+
+/* sign-in gate: content stays hidden until the server confirms a session */
+body:not(.sn-authed) .sn-protected{display:none!important}
+.sn-gate{max-width:620px;margin:48px auto;padding:18px 20px;background:var(--panel,#0a2030);border:1px solid var(--line,#17415c);
+  border-radius:14px;color:var(--mut,#8fb3c7);font-size:13.5px;line-height:1.6;text-align:center}
+.sn-gate b{color:var(--ink,#eaf6fb)} .sn-gate a{color:var(--cyan,#22d3ee)}
+body.sn-authed .sn-gate,.sn-gate:empty{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <svg class="logo" viewBox="0 0 48 48" fill="none">
+    <circle cx="24" cy="24" r="21" stroke="#22d3ee" stroke-width="2.5"/>
+    <path d="M6 26c5-4 8 4 13 0s8 4 13 0 6 3 10 0" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="24" cy="18" r="5" stroke="#22d3ee" stroke-width="2.5"/>
+  </svg>
+  <div class="brand">SAGAR-NETRA<small>Government Portal · Coastal Operations</small></div>
+  <nav>
+    <button id="tabOps" class="on">Public Reports</button>
+  </nav>
+  <div class="who">
+    <span class="live"><i></i>CONNECTING…</span>
+    <span id="whoBox"></span>
+    <span class="av" id="whoAv">··</span>
+  </div>
+</header>
+
+<div id="snGate" class="sn-gate"><b>Sign-in required.</b> Open this page through the SAGAR-NETRA server and <a href="../login/">sign in</a> (e.g. http://127.0.0.1:4000/login/).</div>
+<div class="stats sn-protected">
+  <div class="stat"><div class="n" id="kTot">—</div><div class="l">ACTIVE REPORTS</div><div class="d up" id="kTotD">—</div></div>
+  <div class="stat"><div class="n" id="kNet" style="color:var(--coral)">—</div><div class="l">GHOST NETS</div><div class="d up">highest priority</div></div>
+  <div class="stat"><div class="n" id="kNew">—</div><div class="l">AWAITING TRIAGE</div><div class="d">unassigned</div></div>
+  <div class="stat"><div class="n" id="kRes" style="color:var(--green)">—</div><div class="l">RESOLVED (30d)</div><div class="d dn">cleared</div></div>
+  <div class="stat"><div class="n" id="kArea">—</div><div class="l">MEAN DEBRIS MASK COVER</div><div class="d">% of frame, uncalibrated</div></div>
+</div>
+
+<div class="wrap sn-protected" id="wrap">
+  <aside>
+    <div class="filters" id="filters">
+      <button data-f="all" class="on">All</button>
+      <button data-f="new">New</button>
+      <button data-f="ack">Assigned</button>
+      <button data-f="resolved">Resolved</button>
+      <button data-f="net">Ghost nets</button>
+      <button data-f="citizen">Citizen</button>
+      <button data-f="pro">Professional</button>
+    </div>
+    <div class="queue" id="queue"></div>
+  </aside>
+
+  <section class="map">
+    <div id="map"></div>
+    <div class="maptip">Layer 3 — GIS. Pins are reports from the database, sized by debris mask coverage and coloured by model severity. Grey = no debris / not analysed. Click a pin to open the report.</div>
+    <div class="legend">
+      <div><span class="sev s-high"></span> High — ghost net / large debris</div>
+      <div><span class="sev s-med"></span> Medium — rope, bags, containers</div>
+      <div><span class="sev s-low"></span> Low — isolated small items</div>
+    </div>
+  </section>
+
+  <div class="detail" id="detail"></div>
+</div>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../shared/sn-client.js"></script>
+<script>
+var $ = function(id){ return document.getElementById(id); };
+var esc = SN.esc;
+
+/* All data comes from the SAGAR-NETRA API (PostgreSQL). There is no sample or
+   simulated data: if the API is unreachable the console says so. Admin only. */
+
+var REPORTS = [];
+var STATUS_IN = {new:"new", assigned:"ack", resolved:"resolved"};
+var STATUS_OUT = {new:"new", ack:"assigned", resolved:"resolved"};
+
+function refLabel(id){ return "SN-" + String(id).padStart(5, "0"); }
+function toRow(r){
+  var top = r.summary.top;
+  return {
+    id: r.report_id,
+    ref: refLabel(r.report_id),
+    site: r.site_name || (Number(r.latitude).toFixed(4) + ", " + Number(r.longitude).toFixed(4)),
+    lat: r.latitude, lng: r.longitude, depth: r.depth,
+    cls: top ? top.type_name : null,
+    label: r.inference_status === "failed" ? "Analysis failed" : top ? SN.label(top.type_name) : (r.inference_status === "completed" ? "No objects detected" : "Not analysed"),
+    sev: r.severity || "unk",
+    conf: top ? top.confidence : null,
+    area: r.summary.debris_area_frac || 0,
+    hasNet: r.summary.classes.indexOf("trash_net") !== -1,
+    debrisCount: r.summary.debris_count,
+    status: STATUS_IN[r.review_status] || "new",
+    src: r.source_channel === "professional" ? "pro" : "citizen",
+    ts: new Date(r.upload_time).getTime(),
+    note: r.comments || "",
+    by: r.reporter_name,
+    img: SN.base + r.image_url,
+    inference: r.inference_status
+  };
+}
+
+/* ---------------- map ---------------- */
+var map = L.map("map", {zoomControl:true, attributionControl:true}).setView([13.05, 80.28], 6);
+/* Standard OpenStreetMap tiles (no API key), same style as the reporting pages. */
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+  maxZoom:19
+}).addTo(map);
+
+var markers = {};
+function sevColor(s){ return {high:"#fb7185", med:"#fbbf24", low:"#34d399", none:"#5f8298"}[s] || "#8b98a5"; }
+function sevText(s){ return s === "none" ? "NO DEBRIS" : s === "unk" ? "NOT ANALYSED" : s.toUpperCase(); }
+
+var fitted = false;
+function plot(list){
+  Object.keys(markers).forEach(function(k){ map.removeLayer(markers[k]); });
+  markers = {};
+  list.forEach(function(r){
+    var rad = 6 + Math.min(16, Math.sqrt(r.area * 100) * 3);
+    var m = L.circleMarker([r.lat, r.lng], {
+      radius:rad, color:sevColor(r.sev), weight:2,
+      fillColor:sevColor(r.sev), fillOpacity: r.status==="resolved" ? 0.12 : 0.38
+    }).addTo(map);
+    m.bindPopup("<b>"+esc(r.label)+"</b>"+(r.conf != null ? " · "+SN.fmtPct(r.conf) : "")+"<br>"+esc(r.site)+
+                (r.depth != null ? "<br>Depth: "+esc(r.depth)+" m" : "") +
+                "<br>"+new Date(r.ts).toLocaleString()+
+                "<br><span style='color:#8fb3c7'>"+r.ref+" · "+esc(STATUS_OUT[r.status])+"</span>");
+    m.on("click", function(){ open(r.id); });
+    markers[r.id] = m;
+  });
+  if (!fitted && list.length){
+    fitted = true;
+    map.fitBounds(L.latLngBounds(list.map(function(r){ return [r.lat, r.lng]; })).pad(0.3), {maxZoom: 10});
+  }
+}
+
+/* ---------------- queue ---------------- */
+var filter = "all", selected = null;
+function pass(r){
+  if (filter==="all") return true;
+  if (filter==="net") return r.hasNet;
+  if (filter==="citizen"||filter==="pro") return r.src===filter;
+  return r.status===filter;
+}
+function ago(t){
+  var m = Math.max(0, Math.floor((Date.now()-t)/60000));
+  if (m<60) return m+"m ago";
+  var h = Math.floor(m/60);
+  if (h<24) return h+"h ago";
+  return Math.floor(h/24)+"d ago";
+}
+function renderQueue(){
+  var list = REPORTS.filter(pass);
+  $("queue").innerHTML = list.length ? list.map(function(r){
+    var tg = r.status==="resolved" ? "t-res" : r.status==="ack" ? "t-ack" : "t-new";
+    var lbl = r.status==="resolved" ? "RESOLVED" : r.status==="ack" ? "ASSIGNED" : "NEW";
+    return '<div class="item'+(selected===r.id?" sel":"")+'" data-id="'+r.id+'" tabindex="0" role="button">' +
+      '<img src="'+esc(r.img)+'" alt="" loading="lazy">' +
+      '<div class="m"><div class="t"><span class="sev s-'+r.sev+'"></span>'+esc(r.label) +
+      '<span class="tag '+tg+'">'+lbl+'</span></div>' +
+      '<div class="s">'+esc(r.site)+'</div>' +
+      '<div class="s">'+r.ref+' · '+ago(r.ts)+' · <span class="src">'+(r.src==="pro"?"PRO":"CITIZEN")+'</span></div>' +
+      '</div></div>';
+  }).join("") : '<div class="empty">' + (REPORTS.length ? "No reports match this filter." : "No reports in the database yet.") + '</div>';
+  Array.prototype.forEach.call($("queue").querySelectorAll(".item"), function(el){
+    el.onclick = function(){ open(+el.dataset.id); };
+    el.onkeydown = function(e){ if (e.key === "Enter" || e.key === " "){ e.preventDefault(); open(+el.dataset.id); } };
+  });
+  plot(list);
+  stats();
+}
+Array.prototype.forEach.call($("filters").querySelectorAll("button"), function(b){
+  b.onclick = function(){
+    Array.prototype.forEach.call($("filters").querySelectorAll("button"), function(x){ x.classList.remove("on"); });
+    b.classList.add("on");
+    filter = b.dataset.f;
+    renderQueue();
+  };
+});
+
+/* ---------------- detail (full report from the API) ---------------- */
+function kv(k,v){ return '<div class="kv"><span>'+k+'</span><span>'+esc(v)+'</span></div>'; }
+var LOCSRC = {browser_gps:"Device GPS (surface)", map_click:"Picked on map", manual:"Manual entry", exif:"Image EXIF", sensor:"Dive/ROV/GPS unit"};
+
+function open(id){
+  selected = id;
+  $("wrap").classList.add("open");
+  $("detail").innerHTML = '<div class="empty">Loading '+refLabel(id)+'…</div>';
+  renderQueue();
+  SN.api("/api/reports/" + id).then(function(res){ renderDetail(res.report); }, function(e){
+    $("detail").innerHTML = '<div class="empty">'+esc(e.message)+'</div>';
+  });
+}
+
+function renderDetail(rep){
+  var r = toRow(Object.assign({}, rep, {image_count: rep.images.length}));
+  var d = rep.details || {};
+  var top = rep.summary.top;
+  var imgs = rep.images;
+  var first = imgs[0];
+  var waMsg =
+    "SAGAR-NETRA ALERT " + r.ref + "\n" +
+    (top ? SN.label(top.type_name) + " detected (" + SN.fmtPct(top.confidence) + " model confidence)" : r.label) + "\n" +
+    "Location: " + r.lat + ", " + r.lng + "\n" + r.site + "\n" +
+    "Debris items: " + rep.summary.debris_count + " | Severity: " + sevText(r.sev) + "\n" +
+    "Reported: " + new Date(r.ts).toLocaleString();
+
+  $("detail").innerHTML =
+    '<div class="hd"><span class="sev s-'+r.sev+'"></span><b>'+esc(r.label)+'</b>' +
+    '<button id="cls" aria-label="Close">&times;</button></div>' +
+    '<div class="bd">' +
+      (first ? '<img class="big" id="bigImg" src="'+esc(SN.base + (first.annotated_url || first.url))+'" alt="Report image">' : '') +
+      (imgs.length > 1 ? '<div class="thumbs2">' + imgs.map(function(im, i){
+        return '<img data-src="'+esc(SN.base + (im.annotated_url || im.url))+'" src="'+esc(SN.base + im.url)+'" alt="" class="'+(i===0?"on":"")+'">';
+      }).join("") + '</div>' : '') +
+      imgs.filter(function(i){ return i.inference_status === "failed"; }).map(function(i){
+        return '<div class="warnbox">'+esc(i.original_filename)+': analysis failed — '+esc(i.inference_error)+'. No detections recorded for this image.</div>';
+      }).join("") +
+      '<div style="margin-top:11px">' +
+      (rep.detections.length ? rep.detections.map(function(x){
+        var sev = x.is_debris ? x.severity : "none";
+        return '<div class="det"><span class="sev s-'+sev+'"></span><span>'+esc(SN.label(x.type_name))+' <span class="cls">'+esc(x.type_name)+'</span></span>' +
+          '<span style="margin-left:auto;color:var(--mut)">'+SN.fmtPct(x.confidence)+'</span>' +
+          '<select class="dsel" data-det="'+x.id+'" aria-label="Detection review status">' +
+            ["detected","confirmed","false_positive","removed"].map(function(s){
+              return '<option value="'+s+'"'+(s===x.status?" selected":"")+'>'+s.replace("_"," ")+'</option>';
+            }).join("") + '</select></div>';
+      }).join("") : '<div class="det" style="color:var(--mut)">'+(rep.inference_status === "completed" ? "Model found no objects above the confidence threshold." : "No model results.")+'</div>') +
+      '</div>' +
+      (top ? '<div class="bar"><i style="width:'+(top.confidence*100)+'%"></i></div>' : '') +
+      '<div style="margin-top:13px">' +
+        kv("Report ID", r.ref) +
+        kv("Source", r.src==="pro" ? "Professional survey" : "Citizen app") +
+        kv("Reported by", r.by) +
+        kv("Location", r.site) +
+        kv("Coordinates", Number(r.lat).toFixed(6) + ", " + Number(r.lng).toFixed(6)) +
+        kv("Position source", LOCSRC[rep.location_source] || rep.location_source) +
+        (rep.position_accuracy_m != null ? kv("Position accuracy", "±" + rep.position_accuracy_m + " m") : "") +
+        (rep.depth != null ? kv("Depth", rep.depth + " m") : "") +
+        (rep.water_temp != null ? kv("Water temp", rep.water_temp + " °C") : "") +
+        (rep.visibility != null ? kv("Visibility", rep.visibility + " m") : "") +
+        (d.hazards && d.hazards.length ? kv("Hazards", d.hazards.join(", ").replace(/_/g," ")) : "") +
+        (d.extent_m2 != null ? kv("Extent (reporter est.)", "~" + d.extent_m2 + " m²") : "") +
+        (d.retrieval ? kv("Suggested retrieval", d.retrieval) : "") +
+        (d.vessel ? kv("Vessel", d.vessel) : "") +
+        (d.transect_id ? kv("Transect", d.transect_id) : "") +
+        kv("Debris mask cover", (r.area*100).toFixed(1) + "% of frame") +
+        kv("Severity (model)", sevText(r.sev)) +
+        kv("Model analysis", rep.inference_status) +
+        kv("Received", new Date(r.ts).toLocaleString()) +
+        kv("Status", STATUS_OUT[r.status].toUpperCase()) +
+      '</div>' +
+      (r.note ? '<div style="margin-top:11px;font-size:12.5px;color:var(--mut)">' + esc(r.note) + '</div>' : '') +
+      '<div class="acts">' +
+        (r.status !== "resolved" ? '<button class="b1" id="assign">'+(r.status==="new"?"Dispatch cleanup team":"Mark cleared")+'</button>' : '<button class="b1" id="reopen">Reopen</button>') +
+        '<button class="b2" id="zoom">Zoom to pin</button>' +
+      '</div>' +
+      '<div class="wa"><b>WHATSAPP ALERT PAYLOAD · NOT SENT</b>' +
+        'Preview only — no WhatsApp integration is configured.' +
+        '<code>' + esc(waMsg) + '</code></div>' +
+    '</div>';
+
+  $("cls").onclick = function(){ $("wrap").classList.remove("open"); selected=null; renderQueue(); };
+  $("zoom").onclick = function(){ map.setView([r.lat, r.lng], 12); markers[r.id] && markers[r.id].openPopup(); };
+  var setStatus = function(next, btn){
+    btn.disabled = true;
+    SN.api("/api/reports/" + r.id, {method:"PATCH", body:{review_status: next}}).then(function(res){
+      renderDetail(res.report); load();
+    }, function(e){ btn.disabled = false; alert(e.message); });
+  };
+  if ($("assign")) $("assign").onclick = function(){ setStatus(r.status==="new" ? "assigned" : "resolved", this); };
+  if ($("reopen")) $("reopen").onclick = function(){ setStatus("new", this); };
+  Array.prototype.forEach.call($("detail").querySelectorAll(".thumbs2 img"), function(im){
+    im.onclick = function(){
+      $("bigImg").src = im.dataset.src;
+      Array.prototype.forEach.call($("detail").querySelectorAll(".thumbs2 img"), function(x){ x.classList.toggle("on", x === im); });
+    };
+  });
+  Array.prototype.forEach.call($("detail").querySelectorAll("select[data-det]"), function(sel){
+    sel.onchange = function(){
+      sel.disabled = true;
+      SN.api("/api/debris/" + sel.dataset.det, {method:"PATCH", body:{status: sel.value}}).then(function(){
+        open(r.id); load();
+      }, function(e){ sel.disabled = false; alert(e.message); });
+    };
+  });
+  map.setView([r.lat, r.lng], Math.max(map.getZoom(), 9));
+}
+
+/* ---------------- stats ---------------- */
+function stats(){
+  var act = REPORTS.filter(function(r){ return r.status!=="resolved"; });
+  $("kTot").textContent  = act.length;
+  $("kTotD").textContent = "+" + REPORTS.filter(function(r){ return Date.now()-r.ts < 864e5; }).length + " in 24h";
+  $("kNet").textContent  = REPORTS.filter(function(r){ return r.hasNet && r.status!=="resolved"; }).length;
+  $("kNew").textContent  = REPORTS.filter(function(r){ return r.status==="new"; }).length;
+  $("kRes").textContent  = REPORTS.filter(function(r){ return r.status==="resolved" && Date.now()-r.ts < 30*864e5; }).length;
+  var withDebris = act.filter(function(r){ return r.debrisCount > 0; });
+  $("kArea").textContent = withDebris.length
+    ? (withDebris.reduce(function(s,r){ return s + r.area; }, 0) / withDebris.length * 100).toFixed(1) + "%"
+    : "—";
+}
+
+/* ---------------- live database feed ---------------- */
+function setLive(ok, text){
+  document.querySelector(".live").innerHTML = ok
+    ? '<i></i>' + text
+    : '<i style="background:var(--coral)"></i><span style="color:var(--coral)">' + esc(text) + '</span>';
+}
+function fetchAll(page, acc){
+  return SN.api("/api/reports?limit=100&page=" + page).then(function(res){
+    acc = acc.concat(res.reports);
+    return (page < res.pagination.pages && acc.length < 1000) ? fetchAll(page + 1, acc) : acc;
+  });
+}
+function load(){
+  return fetchAll(1, []).then(function(rows){
+    REPORTS = rows.map(toRow);
+    renderQueue();
+    setLive(true, "LIVE · " + REPORTS.length + " reports from database");
+  }, function(e){
+    setLive(false, e.status === 0 ? "BACKEND UNREACHABLE" : e.message);
+    if (e.status === 401) location.reload();
+  });
+}
+
+function showUser(u){
+  $("whoBox").innerHTML = "";
+  $("whoBox").appendChild(SN.userBadge(u));
+  $("whoAv").textContent = SN.initials(u.name);
+}
+SN.requireLogin({
+  roles: ["admin"],
+  deniedHtml: "The operations console is for administrators. Ask a project admin to grant the admin role, or use the <a href='../professional/'>reporting app</a> to see your own reports.",
+  onDenied: function(u){ showUser(u); setLive(false, "ADMIN ACCESS REQUIRED"); },
+  onReady: function(u){
+    showUser(u);
+    /* the map was created while the page was hidden (size 0); measure it again now it is visible */
+    setTimeout(function(){ map.invalidateSize(); }, 0);
+    load();
+    setInterval(load, 15000);
+  }
+});
+</script>
+</body>
+</html>

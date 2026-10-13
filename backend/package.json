@@ -1,0 +1,37 @@
+{
+  "name": "sagar-netra-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SAGAR-NETRA API: auth, reports, PostgreSQL persistence and YOLO inference orchestration",
+  "type": "module",
+  "engines": {
+    "node": ">=20.10"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "db:migrate": "node scripts/migrate.js",
+    "db:check": "node scripts/db-check.js",
+    "db:local": "node scripts/local-db.js",
+    "admin:create": "node scripts/create-admin.js",
+    "user:set-password": "node scripts/set-password.js",
+    "seed:demo": "node scripts/seed-demo-users.js",
+    "test": "node --test --test-concurrency=1 --test-timeout=600000 \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "embedded-postgres": "17.10.0-beta.17",
+    "supertest": "^7.1.4"
+  }
+}
