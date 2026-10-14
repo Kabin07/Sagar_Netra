@@ -69,6 +69,7 @@ describe('severity', () => {
     assert.equal(detectionSeverity('rov', 0.9), 'none');
     assert.equal(detectionSeverity('animal_fish', 0.5), 'none');
     assert.equal(detectionSeverity('trash_net', 0.01), 'high');
+    assert.equal(detectionSeverity('trash_rope', 0.01), 'high');
     assert.equal(detectionSeverity('trash_bottle', 0.01), 'low');
     assert.equal(detectionSeverity('trash_bag', 0.1), 'med');
   });
