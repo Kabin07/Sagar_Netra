@@ -1,7 +1,7 @@
 """
 Evaluate the trained SAGAR-NETRA checkpoint on the held-out validation split.
 
-    python scripts/evaluate.py                       # best.pt on data/yolo val, imgsz 512
+    python scripts/evaluate.py                       # best.pt on data/yolo val, imgsz 640
     python scripts/evaluate.py --out docs/review/eval
 
 Writes metrics.json (overall + per-class box/mask precision, recall, mAP50, mAP50-95,
@@ -37,9 +37,9 @@ def summary(metric):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_5k_finetune-3" / "weights" / "best.pt"))
+    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_gpu_v2" / "weights" / "best.pt"))
     ap.add_argument("--data", default=str(ROOT / "data" / "yolo" / "data.yaml"))
-    ap.add_argument("--imgsz", type=int, default=512)
+    ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--conf", type=float, default=0.001, help="Ultralytics' standard low threshold for mAP")
     ap.add_argument("--device", default="")
     ap.add_argument("--out", default=str(ROOT / "docs" / "review" / "eval"))

@@ -21,7 +21,7 @@ Output coordinate conventions (documented in README):
 
 Configuration (environment variables; all optional except the token):
     SN_INFERENCE_TOKEN   shared secret, must match the backend's INFERENCE_TOKEN
-    SN_MODEL_PATH        default runs/sagarnetra_5k_finetune-3/weights/best.pt
+    SN_MODEL_PATH        default runs/sagarnetra_gpu_v2/weights/best.pt
     SN_INFERENCE_HOST    default 127.0.0.1
     SN_INFERENCE_PORT    default 8001
     SN_CONF              default confidence threshold, default 0.25
@@ -53,7 +53,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 CLASSES_FILE = Path(__file__).resolve().parent / "classes.json"
-DEFAULT_MODEL = ROOT / "runs" / "sagarnetra_5k_finetune-3" / "weights" / "best.pt"
+DEFAULT_MODEL = ROOT / "runs" / "sagarnetra_gpu_v2" / "weights" / "best.pt"
 
 
 def _load_dotenv(path: Path) -> None:
