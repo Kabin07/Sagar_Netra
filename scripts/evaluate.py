@@ -17,14 +17,18 @@ import yaml
 from ultralytics import YOLO
 
 
-def dataset_root(data_yaml):
-    """Directory holding images/ and labels/: the yaml's `path:` key, else the yaml's own folder."""
+def val_dirs(data_yaml):
+    """(images_dir, labels_dir) of the yaml's `val:` split, resolved against its `path:` key."""
     data_yaml = Path(data_yaml)
-    root = (yaml.safe_load(data_yaml.read_text(encoding="utf-8")) or {}).get("path")
-    if not root:
-        return data_yaml.parent
-    root = Path(root)
-    return root if root.is_absolute() else data_yaml.parent / root
+    cfg = yaml.safe_load(data_yaml.read_text(encoding="utf-8")) or {}
+    root = Path(cfg["path"]) if cfg.get("path") else data_yaml.parent
+    if not root.is_absolute():
+        root = data_yaml.parent / root
+    images = root / cfg.get("val", "images/val")
+    # Ultralytics convention: labels mirror images with the `images` path part renamed
+    labels = Path(*["labels" if part == "images" else part for part in images.parts])
+    return images, labels
+
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -66,7 +70,7 @@ def main():
         })
     # instance counts per class from the validation labels
     counts = {}
-    for lbl in (dataset_root(args.data) / "labels" / "val").glob("*.txt"):
+    for lbl in val_dirs(args.data)[1].glob("*.txt"):
         for line in lbl.read_text().splitlines():
             if line.strip():
                 k = int(line.split()[0])
@@ -77,7 +81,7 @@ def main():
     result = {
         "weights": Path(args.weights).name,
         "imgsz": args.imgsz,
-        "val_images": len(list((dataset_root(args.data) / "images" / "val").glob("*"))),
+        "val_images": len(list(val_dirs(args.data)[0].glob("*"))),
         "val_instances": sum(counts.values()),
         "box": summary(m.box),
         "mask": summary(m.seg),
