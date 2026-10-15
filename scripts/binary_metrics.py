@@ -70,7 +70,8 @@ def main():
     args = ap.parse_args()
 
     model = YOLO(args.weights)
-    labels = Path(args.images).parent.parent / "labels" / "val"
+    # labels mirror images with the `images` path part renamed (Ultralytics convention)
+    labels = Path(*["labels" if p == "images" else p for p in Path(args.images).parts])
     img_debris = [0, 0, 0, 0]   # tp fp tn fn
     img_net = [0, 0, 0, 0]
     px = [0, 0, 0, 0]
