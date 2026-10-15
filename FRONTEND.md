@@ -126,7 +126,7 @@ python -m http.server 5180 --directory C:/Users/ielev/sagar-netra/frontend
 
 | Component | Status |
 |---|---|
-| YOLOv8n-seg trained model | **Real.** `runs/sagarnetra_gpu_v2/weights/best.pt`, served by `inference/service.py` |
+| YOLOv8n-seg trained model | **Real.** `runs/sagarnetra_seaclear_v3/weights/best.pt`, served by `inference/service.py` |
 | Detection results shown in all three frontends | **Real.** Every result comes from the model via the backend; nothing is simulated. If the backend or model is unavailable the apps say so (report not sent, or saved with "analysis failed" and a retry button). |
 | Accounts, report history, map pins | **Real.** PostgreSQL via the Express API (`backend/`); see README.md |
 | Layer 1 enhancement in the frontends | **Real**, preview only. The model analyses the original image (enhancing first lowered recall). |

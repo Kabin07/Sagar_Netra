@@ -62,7 +62,7 @@ def gt_for(label_path, h, w):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_gpu_v2" / "weights" / "best.pt"))
+    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_seaclear_v3" / "weights" / "best.pt"))
     ap.add_argument("--images", default=str(ROOT / "data" / "yolo" / "images" / "val"))
     ap.add_argument("--conf", type=float, default=0.25, help="same threshold as the deployed app")
     ap.add_argument("--imgsz", type=int, default=640)

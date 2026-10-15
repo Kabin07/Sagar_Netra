@@ -21,7 +21,7 @@ coordinates, real model inference, PostgreSQL persistence and map views.
 | API | `backend/` | Express 5, `pg`, bcrypt, JWT bound to a revocable DB session in an httpOnly `SameSite=Strict` cookie (Bearer header also accepted). |
 | Database | `backend/db/migrations/` | Versioned SQL; applied automatically on start or with `npm run db:migrate`. |
 | Inference | `inference/service.py` | Standard-library HTTP server around Ultralytics; no extra Python packages beyond `inference/requirements.txt`. |
-| Model | `runs/sagarnetra_gpu_v2/weights/best.pt` | 22 classes, trained at imgsz 640 (see *Results — GPU fine-tune*). The previous checkpoint, `runs/sagarnetra_5k_finetune-3/weights/best.pt` (imgsz 512), is kept for rollback via `SN_MODEL_PATH`. |
+| Model | `runs/sagarnetra_seaclear_v3/weights/best.pt` | 22 classes, imgsz 640, trained on TrashCan + SeaClear (see *Results — TrashCan + SeaClear*). Earlier checkpoints `runs/sagarnetra_gpu_v2/weights/best.pt` and `runs/sagarnetra_5k_finetune-3/weights/best.pt` are kept for rollback via `SN_MODEL_PATH`. |
 
 ---
 
@@ -348,7 +348,47 @@ r = model.predict("some_image.jpg", conf=0.25, retina_masks=True, save=True)
 
 ---
 
-## Results — GPU fine-tune (`sagarnetra_gpu_v2`, current model)
+## Results — TrashCan + SeaClear (`sagarnetra_seaclear_v3`, current model)
+
+**Why another model.** TrashCan's official split shares videos between train and val (113 of 115
+val videos), so its val scores measure *familiar scenes*. On a video-disjoint re-split
+(`scripts/resplit_by_video.py`: 261/51 videos, every class ≥10% in val) a TrashCan-only YOLOv8n
+reaches only **0.18 box / 0.17 mask mAP50**, and on SeaClear sites it never saw, **0.006 mask
+mAP50**: models trained on TrashCan alone mostly recognise familiar footage. Adding SeaClear
+(Đuraš et al., *Scientific Data* 11:921, 2024, CC BY 4.0; 8,610 shallow-water ROV images,
+converted by `scripts/convert_seaclear_to_yolo.py`, adding 960 net and 2,036 rope instances)
+kept the TrashCan score (0.19 / 0.17) and raised unseen-site mask mAP50 about tenfold.
+
+`sagarnetra_seaclear_v3` = `sagarnetra_gpu_v2` fine-tuned on TrashCan official train + SeaClear
+(sites Jakljan and Slano held out, 545 images), 60 epochs, imgsz 640, batch 16, AdamW lr0=0.001,
+cosine LR, mosaic off for the last 10 epochs; best epoch 46, 2.9 h on an RTX 4050. The
+dataset file is `docs/review/eval_v3/training/data.yaml` (copy it to `data/` and adjust the paths).
+
+```
+.venv\Scripts\python.exe scripts\train.py --data data\final_trashcan_seaclear.yaml ^
+  --weights runs\sagarnetra_gpu_v2\weights\best.pt --epochs 60 --imgsz 640 --batch 16 --workers 4 ^
+  --device 0 --patience 60 --cos-lr --close-mosaic 10 --optimizer AdamW --lr0 0.001 ^
+  --warmup-epochs 1 --name sagarnetra_seaclear_v3
+```
+
+| | gpu_v2 | **seaclear_v3** |
+|---|---|---|
+| TrashCan official val, box / mask mAP50 | 0.701 / 0.682 | 0.683 / 0.665 |
+| SeaClear unseen sites, debris image recall / F1 (conf 0.25) | 0.235 / 0.369 | **0.677 / 0.770** |
+| SeaClear unseen sites, debris pixel IoU | 0.046 | **0.162** |
+| SeaClear unseen sites, mask mAP50 | 0.010 | **0.024** |
+| TrashCan val, ghost-net image recall / precision / false alarms | 0.862 / 0.758 / 8 | **0.931 / 0.818 / 6** |
+| TrashCan val, debris image specificity | **0.782** | 0.723 |
+| TrashCan val, debris pixel IoU | **0.695** | 0.632 |
+
+Adopted because every photo the app receives comes from a location the model has not seen, and
+ghost nets are the main target; the cost is ~2 points on TrashCan-style footage and more false
+alarms on clean TrashCan frames. Outlining and classifying debris at new sites remains weak
+(mask mAP50 0.02): the gain there is in noticing debris. A model trained from COCO weights on the
+same data scored higher at unseen sites (0.068 mask mAP50, 0.74 debris recall), so training a
+fresh model on all data is the next experiment. Evaluation JSON in `docs/review/eval_v3/`.
+
+## Results — GPU fine-tune (`sagarnetra_gpu_v2`, previous model)
 
 `runs/sagarnetra_5k_finetune-3/weights/best.pt` fine-tuned on TrashCan 1.0 (instance
 version, official split) on an RTX 4050 Laptop GPU: imgsz 640, batch 16, AdamW lr0=0.001,
