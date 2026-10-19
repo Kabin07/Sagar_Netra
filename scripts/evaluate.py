@@ -41,7 +41,7 @@ def summary(metric):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_seaclear_v3" / "weights" / "best.pt"))
+    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_turbid_v4" / "weights" / "best.pt"))
     ap.add_argument("--data", default=str(ROOT / "data" / "yolo" / "data.yaml"))
     ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--conf", type=float, default=0.001, help="Ultralytics' standard low threshold for mAP")
