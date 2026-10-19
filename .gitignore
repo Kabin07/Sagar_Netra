@@ -61,9 +61,12 @@ desktop.ini
 .idea/
 
 # ── Deployed model ──────────────────────────────────────────────────
-# The checkpoint the app serves (inference/service.py default). Only this one file
-# from runs/ is committed; other checkpoints and training artefacts stay ignored.
+# The checkpoint the app serves (inference/service.py default) and the previous ones,
+# kept for rollback. Only these files from runs/ are committed; other checkpoints and
+# training artefacts stay ignored.
 !runs/
 runs/**
 !runs/**/
 !runs/sagarnetra_5k_finetune-3/weights/best.pt
+!runs/sagarnetra_gpu_v2/weights/best.pt
+!runs/sagarnetra_seaclear_v3/weights/best.pt

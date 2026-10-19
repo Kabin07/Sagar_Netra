@@ -1,0 +1,109 @@
+{
+  "weights": "best.pt",
+  "imgsz": 640,
+  "val_images": 34,
+  "val_instances": 88,
+  "box": {
+    "precision": 0.45507079591473837,
+    "recall": 0.5417138322680813,
+    "f1": 0.4946266983624573,
+    "map50": 0.38996807683420426,
+    "map75": 0.3597002773743824,
+    "map50_95": 0.31573627657994685
+  },
+  "mask": {
+    "precision": 0.45507079591473837,
+    "recall": 0.5417138322680813,
+    "f1": 0.4946266983624573,
+    "map50": 0.38996807683420426,
+    "map75": 0.3126652793477472,
+    "map50_95": 0.2875698535335583
+  },
+  "speed_ms_per_image": {
+    "preprocess": 1.78,
+    "inference": 15.62,
+    "loss": 0.0,
+    "postprocess": 4.25
+  },
+  "wall_seconds": 14.4,
+  "per_class": [
+    {
+      "class_index": 0,
+      "class_name": "rov",
+      "box_precision": 0.8300832815358427,
+      "box_recall": 0.7567567567567568,
+      "box_map50": 0.8408787820312958,
+      "box_map50_95": 0.7204548819138606,
+      "mask_precision": 0.8300832815358427,
+      "mask_recall": 0.7567567567567568,
+      "mask_map50": 0.8408787820312958,
+      "mask_map50_95": 0.7125930826659184,
+      "val_instances": 37
+    },
+    {
+      "class_index": 2,
+      "class_name": "animal_fish",
+      "box_precision": 0.522564535892168,
+      "box_recall": 0.343526236851731,
+      "box_map50": 0.34378542457967576,
+      "box_map50_95": 0.21187413175217493,
+      "mask_precision": 0.522564535892168,
+      "mask_recall": 0.343526236851731,
+      "mask_map50": 0.34378542457967576,
+      "mask_map50_95": 0.13399592225531537,
+      "val_instances": 16
+    },
+    {
+      "class_index": 6,
+      "class_name": "animal_eel",
+      "box_precision": 0.06294162625149728,
+      "box_recall": 1.0,
+      "box_map50": 0.0995,
+      "box_map50_95": 0.06965,
+      "mask_precision": 0.06294162625149728,
+      "mask_recall": 1.0,
+      "mask_map50": 0.0995,
+      "mask_map50_95": 0.0398,
+      "val_instances": 1
+    },
+    {
+      "class_index": 11,
+      "class_name": "trash_bag",
+      "box_precision": 0.18790908333118012,
+      "box_recall": 0.15,
+      "box_map50": 0.1268942543942544,
+      "box_map50_95": 0.0770636458136458,
+      "mask_precision": 0.18790908333118012,
+      "mask_recall": 0.15,
+      "mask_map50": 0.1268942543942544,
+      "mask_map50_95": 0.07361344961344961,
+      "val_instances": 20
+    },
+    {
+      "class_index": 12,
+      "class_name": "trash_snack_wrapper",
+      "box_precision": 1.0,
+      "box_recall": 0.0,
+      "box_map50": 0.27,
+      "box_map50_95": 0.25250000000000006,
+      "mask_precision": 1.0,
+      "mask_recall": 0.0,
+      "mask_map50": 0.27,
+      "mask_map50_95": 0.24025,
+      "val_instances": 10
+    },
+    {
+      "class_index": 16,
+      "class_name": "trash_unknown_instance",
+      "box_precision": 0.12692624847774217,
+      "box_recall": 1.0,
+      "box_map50": 0.65875,
+      "box_map50_95": 0.562875,
+      "mask_precision": 0.12692624847774217,
+      "mask_recall": 1.0,
+      "mask_map50": 0.65875,
+      "mask_map50_95": 0.5251666666666667,
+      "val_instances": 4
+    }
+  ]
+}

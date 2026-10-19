@@ -209,7 +209,7 @@ body.sn-authed .sn-gate,.sn-gate:empty{display:none}
 <div id="snGate" class="sn-gate"><b>Sign-in required.</b> Open this page through the SAGAR-NETRA server and <a href="../login/">sign in</a> (e.g. http://127.0.0.1:4000/login/).</div>
 <div class="stats sn-protected">
   <div class="stat"><div class="n" id="kTot">—</div><div class="l">ACTIVE REPORTS</div><div class="d up" id="kTotD">—</div></div>
-  <div class="stat"><div class="n" id="kNet" style="color:var(--coral)">—</div><div class="l">GHOST NETS</div><div class="d up">highest priority</div></div>
+  <div class="stat"><div class="n" id="kNet" style="color:var(--coral)">—</div><div class="l">GHOST NETS &amp; ROPE</div><div class="d up">highest priority</div></div>
   <div class="stat"><div class="n" id="kNew">—</div><div class="l">AWAITING TRIAGE</div><div class="d">unassigned</div></div>
   <div class="stat"><div class="n" id="kRes" style="color:var(--green)">—</div><div class="l">RESOLVED (30d)</div><div class="d dn">cleared</div></div>
   <div class="stat"><div class="n" id="kArea">—</div><div class="l">MEAN DEBRIS MASK COVER</div><div class="d">% of frame, uncalibrated</div></div>
@@ -222,7 +222,7 @@ body.sn-authed .sn-gate,.sn-gate:empty{display:none}
       <button data-f="new">New</button>
       <button data-f="ack">Assigned</button>
       <button data-f="resolved">Resolved</button>
-      <button data-f="net">Ghost nets</button>
+      <button data-f="net">Ghost nets &amp; rope</button>
       <button data-f="citizen">Citizen</button>
       <button data-f="pro">Professional</button>
     </div>
@@ -233,8 +233,8 @@ body.sn-authed .sn-gate,.sn-gate:empty{display:none}
     <div id="map"></div>
     <div class="maptip">Layer 3 — GIS. Pins are reports from the database, sized by debris mask coverage and coloured by model severity. Grey = no debris / not analysed. Click a pin to open the report.</div>
     <div class="legend">
-      <div><span class="sev s-high"></span> High — ghost net / large debris</div>
-      <div><span class="sev s-med"></span> Medium — rope, bags, containers</div>
+      <div><span class="sev s-high"></span> High — ghost net / rope / large debris</div>
+      <div><span class="sev s-med"></span> Medium — bags, containers, pipes</div>
       <div><span class="sev s-low"></span> Low — isolated small items</div>
     </div>
   </section>
@@ -269,7 +269,7 @@ function toRow(r){
     sev: r.severity || "unk",
     conf: top ? top.confidence : null,
     area: r.summary.debris_area_frac || 0,
-    hasNet: r.summary.classes.indexOf("trash_net") !== -1,
+    hasNet: r.summary.classes.indexOf("trash_net") !== -1 || r.summary.classes.indexOf("trash_rope") !== -1,
     debrisCount: r.summary.debris_count,
     status: STATUS_IN[r.review_status] || "new",
     src: r.source_channel === "professional" ? "pro" : "citizen",

@@ -1,0 +1,179 @@
+{
+  "source": "C:\\Users\\Adith\\Downloads\\yolo",
+  "seed": 0,
+  "val_frac_target": 0.16,
+  "score": 0.317,
+  "videos": {
+    "train": 261,
+    "val": 51
+  },
+  "images": {
+    "train": 6056,
+    "val": 1156
+  },
+  "val_videos": [
+    "vid_000002",
+    "vid_000020",
+    "vid_000022",
+    "vid_000031",
+    "vid_000068",
+    "vid_000070",
+    "vid_000076",
+    "vid_000085",
+    "vid_000088",
+    "vid_000090",
+    "vid_000094",
+    "vid_000095",
+    "vid_000101",
+    "vid_000105",
+    "vid_000108",
+    "vid_000120",
+    "vid_000133",
+    "vid_000139",
+    "vid_000150",
+    "vid_000156",
+    "vid_000162",
+    "vid_000172",
+    "vid_000182",
+    "vid_000204",
+    "vid_000205",
+    "vid_000207",
+    "vid_000239",
+    "vid_000244",
+    "vid_000261",
+    "vid_000270",
+    "vid_000282",
+    "vid_000284",
+    "vid_000290",
+    "vid_000298",
+    "vid_000308",
+    "vid_000321",
+    "vid_000326",
+    "vid_000331",
+    "vid_000334",
+    "vid_000343",
+    "vid_000367",
+    "vid_000369",
+    "vid_000370",
+    "vid_000386",
+    "vid_000422",
+    "vid_000430",
+    "vid_000434",
+    "vid_000437",
+    "vid_000443",
+    "vid_000450",
+    "vid_000532"
+  ],
+  "per_class": {
+    "rov": {
+      "total": 3317,
+      "val": 402,
+      "val_share": 0.121
+    },
+    "plant": {
+      "total": 507,
+      "val": 66,
+      "val_share": 0.13
+    },
+    "animal_fish": {
+      "total": 764,
+      "val": 134,
+      "val_share": 0.175
+    },
+    "animal_starfish": {
+      "total": 398,
+      "val": 73,
+      "val_share": 0.183
+    },
+    "animal_shells": {
+      "total": 249,
+      "val": 25,
+      "val_share": 0.1
+    },
+    "animal_crab": {
+      "total": 309,
+      "val": 35,
+      "val_share": 0.113
+    },
+    "animal_eel": {
+      "total": 343,
+      "val": 91,
+      "val_share": 0.265
+    },
+    "animal_etc": {
+      "total": 235,
+      "val": 85,
+      "val_share": 0.362
+    },
+    "trash_clothing": {
+      "total": 82,
+      "val": 11,
+      "val_share": 0.134
+    },
+    "trash_pipe": {
+      "total": 156,
+      "val": 44,
+      "val_share": 0.282
+    },
+    "trash_bottle": {
+      "total": 126,
+      "val": 44,
+      "val_share": 0.349
+    },
+    "trash_bag": {
+      "total": 908,
+      "val": 110,
+      "val_share": 0.121
+    },
+    "trash_snack_wrapper": {
+      "total": 84,
+      "val": 33,
+      "val_share": 0.393
+    },
+    "trash_can": {
+      "total": 459,
+      "val": 156,
+      "val_share": 0.34
+    },
+    "trash_cup": {
+      "total": 59,
+      "val": 9,
+      "val_share": 0.153
+    },
+    "trash_container": {
+      "total": 510,
+      "val": 128,
+      "val_share": 0.251
+    },
+    "trash_unknown_instance": {
+      "total": 2756,
+      "val": 423,
+      "val_share": 0.153
+    },
+    "trash_branch": {
+      "total": 336,
+      "val": 75,
+      "val_share": 0.223
+    },
+    "trash_wreckage": {
+      "total": 165,
+      "val": 65,
+      "val_share": 0.394
+    },
+    "trash_tarp": {
+      "total": 121,
+      "val": 17,
+      "val_share": 0.14
+    },
+    "trash_rope": {
+      "total": 117,
+      "val": 12,
+      "val_share": 0.103
+    },
+    "trash_net": {
+      "total": 127,
+      "val": 22,
+      "val_share": 0.173
+    }
+  }
+}

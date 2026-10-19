@@ -20,8 +20,8 @@ python -c "import ultralytics, cv2, numpy; print('Python OK, ultralytics', ultra
 if ($LASTEXITCODE -ne 0) {
   Write-Host "Python packages missing. Run:  python -m pip install -r inference\requirements.txt" -ForegroundColor Yellow
 }
-if (-not (Test-Path "runs\sagarnetra_5k_finetune-3\weights\best.pt")) {
-  Write-Host "WARNING: runs\sagarnetra_5k_finetune-3\weights\best.pt not found - set SN_MODEL_PATH in inference\.env" -ForegroundColor Yellow
+if (-not (Test-Path "runs\sagarnetra_seaclear_v3\weights\best.pt")) {
+  Write-Host "WARNING: runs\sagarnetra_seaclear_v3\weights\best.pt not found - set SN_MODEL_PATH in inference\.env" -ForegroundColor Yellow
 }
 
 Push-Location backend

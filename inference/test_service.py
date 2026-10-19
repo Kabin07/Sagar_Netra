@@ -42,7 +42,8 @@ class ServiceOutputTest(unittest.TestCase):
         out = service.segment(raw, conf=0.25, imgsz=service.STATE.imgsz)
 
         direct = YOLO(str(service.MODEL_PATH)).predict(
-            cv2.imread(str(IMAGE)), conf=0.25, imgsz=service.STATE.imgsz, retina_masks=True, verbose=False)[0]
+            cv2.imread(str(IMAGE)), conf=0.25, iou=service.NMS_IOU, imgsz=service.STATE.imgsz,
+            retina_masks=True, verbose=False)[0]
         want = sorted((int(c), round(float(s), 5)) for c, s in zip(direct.boxes.cls, direct.boxes.conf))
         got = sorted((d["class_index"], d["confidence"]) for d in out["detections"])
         self.assertTrue(want, "model produced no detections on the ghost-net frame")

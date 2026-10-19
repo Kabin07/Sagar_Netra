@@ -62,15 +62,16 @@ def gt_for(label_path, h, w):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_5k_finetune-3" / "weights" / "best.pt"))
+    ap.add_argument("--weights", default=str(ROOT / "runs" / "sagarnetra_seaclear_v3" / "weights" / "best.pt"))
     ap.add_argument("--images", default=str(ROOT / "data" / "yolo" / "images" / "val"))
     ap.add_argument("--conf", type=float, default=0.25, help="same threshold as the deployed app")
-    ap.add_argument("--imgsz", type=int, default=512)
+    ap.add_argument("--imgsz", type=int, default=640)
     ap.add_argument("--out", default=str(ROOT / "docs" / "review" / "eval" / "binary_metrics.json"))
     args = ap.parse_args()
 
     model = YOLO(args.weights)
-    labels = Path(args.images).parent.parent / "labels" / "val"
+    # labels mirror images with the `images` path part renamed (Ultralytics convention)
+    labels = Path(*["labels" if p == "images" else p for p in Path(args.images).parts])
     img_debris = [0, 0, 0, 0]   # tp fp tn fn
     img_net = [0, 0, 0, 0]
     px = [0, 0, 0, 0]

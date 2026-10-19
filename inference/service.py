@@ -21,10 +21,12 @@ Output coordinate conventions (documented in README):
 
 Configuration (environment variables; all optional except the token):
     SN_INFERENCE_TOKEN   shared secret, must match the backend's INFERENCE_TOKEN
-    SN_MODEL_PATH        default runs/sagarnetra_5k_finetune-3/weights/best.pt
+    SN_MODEL_PATH        default runs/sagarnetra_seaclear_v3/weights/best.pt
     SN_INFERENCE_HOST    default 127.0.0.1
     SN_INFERENCE_PORT    default 8001
     SN_CONF              default confidence threshold, default 0.25
+    SN_IOU               NMS IoU threshold, default 0.5 (0.7 left large nets split into
+                         several overlapping detections; 0.5 scored higher on val)
     SN_IMGSZ             default inference size; default = the checkpoint's training imgsz
     SN_DEVICE            "" (auto), "cpu", "0", ...
     SN_MAX_SIDE          downscale very large images before inference, default 1920
@@ -53,7 +55,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 CLASSES_FILE = Path(__file__).resolve().parent / "classes.json"
-DEFAULT_MODEL = ROOT / "runs" / "sagarnetra_5k_finetune-3" / "weights" / "best.pt"
+DEFAULT_MODEL = ROOT / "runs" / "sagarnetra_seaclear_v3" / "weights" / "best.pt"
 
 
 def _load_dotenv(path: Path) -> None:
@@ -78,6 +80,7 @@ if not MODEL_PATH.is_absolute():
 HOST = os.environ.get("SN_INFERENCE_HOST", "127.0.0.1")
 PORT = int(os.environ.get("SN_INFERENCE_PORT", "8001"))
 DEFAULT_CONF = float(os.environ.get("SN_CONF", "0.25"))
+NMS_IOU = float(os.environ.get("SN_IOU", "0.5"))
 ENV_IMGSZ = os.environ.get("SN_IMGSZ", "")
 DEVICE = os.environ.get("SN_DEVICE", "")
 MAX_SIDE = int(os.environ.get("SN_MAX_SIDE", "1920"))
@@ -178,7 +181,7 @@ def segment(raw: bytes, conf: float, imgsz: int) -> dict:
 
     with STATE.lock:
         t0 = time.perf_counter()
-        res = STATE.model.predict(work, conf=conf, imgsz=imgsz, retina_masks=True,
+        res = STATE.model.predict(work, conf=conf, iou=NMS_IOU, imgsz=imgsz, retina_masks=True,
                                   device=DEVICE or None, verbose=False)[0]
         elapsed = (time.perf_counter() - t0) * 1000
 
@@ -222,7 +225,7 @@ def segment(raw: bytes, conf: float, imgsz: int) -> dict:
         "image": {"width": orig_w, "height": orig_h,
                   "analysed_width": work_w, "analysed_height": work_h},
         "model": {"path": MODEL_PATH.name, "sha256": STATE.sha256, "imgsz": imgsz,
-                  "conf": conf, "ultralytics": STATE.ultralytics_version},
+                  "conf": conf, "iou": NMS_IOU, "ultralytics": STATE.ultralytics_version},
         "inference_ms": round(elapsed, 1),
         "detections": detections,
         "annotated_jpeg_base64": _encode_jpeg(res.plot(line_width=2)),
@@ -259,6 +262,7 @@ class Handler(BaseHTTPRequestHandler):
             "num_classes": len(STATE.names or EXPECTED_CLASSES),
             "imgsz": STATE.imgsz,
             "default_conf": DEFAULT_CONF,
+            "nms_iou": NMS_IOU,
             "device": DEVICE or "auto",
             "ultralytics": STATE.ultralytics_version,
         })
