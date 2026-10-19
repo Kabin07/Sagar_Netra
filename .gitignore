@@ -70,3 +70,4 @@ runs/**
 !runs/sagarnetra_5k_finetune-3/weights/best.pt
 !runs/sagarnetra_gpu_v2/weights/best.pt
 !runs/sagarnetra_seaclear_v3/weights/best.pt
+!runs/sagarnetra_turbid_v4/weights/best.pt

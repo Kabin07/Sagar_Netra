@@ -1,0 +1,11 @@
+{
+  "description": "Image-level 'fishing gear' detection: trash_net or trash_rope present (truth) vs predicted at conf 0.25, NMS IoU 0.5, imgsz 640.",
+  "clear_trashcan_val":    {"seaclear_v3": {"TP": 51, "FP": 2,  "FN": 4,  "recall": 0.927, "precision": 0.962, "f1": 0.944},
+                            "turbid_v4":   {"TP": 49, "FP": 0,  "FN": 6,  "recall": 0.891, "precision": 1.000, "f1": 0.942}},
+  "murky_trashcan_val":    {"seaclear_v3": {"TP": 8,  "FP": 38, "FN": 47, "recall": 0.145, "precision": 0.174, "f1": 0.158},
+                            "turbid_v4":   {"TP": 47, "FP": 1,  "FN": 8,  "recall": 0.855, "precision": 0.979, "f1": 0.913}},
+  "clear_seaclear_sites":  {"seaclear_v3": {"TP": 1,  "FP": 28, "FN": 10, "recall": 0.091, "precision": 0.034, "f1": 0.050},
+                            "turbid_v4":   {"TP": 1,  "FP": 25, "FN": 10, "recall": 0.091, "precision": 0.038, "f1": 0.054}},
+  "murky_seaclear_sites":  {"seaclear_v3": {"TP": 0,  "FP": 14, "FN": 11, "recall": 0.000, "precision": 0.000, "f1": 0.000},
+                            "turbid_v4":   {"TP": 1,  "FP": 66, "FN": 10, "recall": 0.091, "precision": 0.015, "f1": 0.026}}
+}

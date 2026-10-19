@@ -21,7 +21,7 @@ coordinates, real model inference, PostgreSQL persistence and map views.
 | API | `backend/` | Express 5, `pg`, bcrypt, JWT bound to a revocable DB session in an httpOnly `SameSite=Strict` cookie (Bearer header also accepted). |
 | Database | `backend/db/migrations/` | Versioned SQL; applied automatically on start or with `npm run db:migrate`. |
 | Inference | `inference/service.py` | Standard-library HTTP server around Ultralytics; no extra Python packages beyond `inference/requirements.txt`. |
-| Model | `runs/sagarnetra_seaclear_v3/weights/best.pt` | 22 classes, imgsz 640, trained on TrashCan + SeaClear (see *Results — TrashCan + SeaClear*). Earlier checkpoints `runs/sagarnetra_gpu_v2/weights/best.pt` and `runs/sagarnetra_5k_finetune-3/weights/best.pt` are kept for rollback via `SN_MODEL_PATH`. |
+| Model | `runs/sagarnetra_turbid_v4/weights/best.pt` | 22 classes, imgsz 640, trained on TrashCan + SeaClear + simulated murky water (see *Results — murky water*). Earlier checkpoints `runs/sagarnetra_seaclear_v3/`, `runs/sagarnetra_gpu_v2/` and `runs/sagarnetra_5k_finetune-3/` (`weights/best.pt`) are kept for rollback via `SN_MODEL_PATH`. |
 
 ---
 
@@ -348,7 +348,45 @@ r = model.predict("some_image.jpg", conf=0.25, retina_masks=True, save=True)
 
 ---
 
-## Results — TrashCan + SeaClear (`sagarnetra_seaclear_v3`, current model)
+## Results — murky water (`sagarnetra_turbid_v4`, current model)
+
+Indian coastal water (river mouths, monsoon) is far murkier than TrashCan or SeaClear, and no
+labelled underwater photos from there are available. `scripts/turbid_augment.py` makes murky
+copies of existing images (underwater image-formation model with green / brown / yellow-green /
+teal casts, haze, low light, blur, suspended particles, sensor noise; labels unchanged). On a murky
+copy of TrashCan val, `seaclear_v3` collapsed: mask mAP50 0.665 → 0.113, ghost-net recall 0.93 → 0.10.
+
+`sagarnetra_turbid_v4` = `seaclear_v3` fine-tuned for 40 epochs on TrashCan train + SeaClear train
+plus murky copies of half of each (21,194 images), AdamW lr0=0.001, cosine LR, mosaic off for the
+last 10 epochs. Best epoch was chosen on clear TrashCan val + a murky copy made with a different
+seed (55); the murky **test** sets (seeds 99 / 98) were used for neither training nor selection.
+
+```
+.venv\Scripts\python.exe scripts\turbid_augment.py <yolo>\images\train <yolo>\labels\train data\turbid_train --split trashcan --fraction 0.5 --seed 1
+.venv\Scripts\python.exe scripts\turbid_augment.py data\seaclear_yolo640\images\train data\seaclear_yolo640\labels\train data\turbid_train --split seaclear --fraction 0.5 --seed 2
+.venv\Scripts\python.exe scripts\train.py --data data\final_turbid.yaml --weights runs\sagarnetra_seaclear_v3\weights\best.pt ^
+  --epochs 40 --imgsz 640 --batch 16 --workers 4 --device 0 --patience 40 --cos-lr --close-mosaic 10 ^
+  --optimizer AdamW --lr0 0.001 --warmup-epochs 1 --name sagarnetra_turbid_v4
+```
+
+| (conf 0.25 for image / pixel rows) | seaclear_v3 | **turbid_v4** |
+|---|---|---|
+| Clear TrashCan val, box / mask mAP50 | 0.683 / 0.665 | **0.685 / 0.668** |
+| Clear TrashCan val, debris recall / false alarms | 0.903 / 57 | **0.914 / 51** |
+| Clear TrashCan val, fishing gear (net + rope) F1 | **0.944** | 0.942 |
+| Clear TrashCan val, debris pixel IoU | 0.632 | **0.666** |
+| Murky TrashCan val, box / mask mAP50 | 0.116 / 0.113 | **0.575 / 0.545** |
+| Murky TrashCan val, debris recall | 0.430 | **0.813** |
+| Murky TrashCan val, fishing gear recall / false alarms / F1 | 0.145 / 38 / 0.158 | **0.855 / 1 / 0.913** |
+| Murky TrashCan val, debris pixel IoU | 0.139 | **0.590** |
+| Murky SeaClear unseen sites, false fishing-gear alarms (545 images) | **14** | 66 |
+| GPU inference per image | 2.8 ms | **2.4 ms** |
+
+Caveats: the murky test sets come from the same simulator as the training copies, so real murky
+water will be harder than these numbers; and in murky water at unseen sites v4 raises more false
+net/rope alarms. JSON in `docs/review/eval_v4/`.
+
+## Results — TrashCan + SeaClear (`sagarnetra_seaclear_v3`, previous model)
 
 **Why another model.** TrashCan's official split shares videos between train and val (113 of 115
 val videos), so its val scores measure *familiar scenes*. On a video-disjoint re-split

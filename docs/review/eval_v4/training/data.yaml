@@ -1,0 +1,36 @@
+# v3 + turbid-water simulation: clear + murky training; val = clear TrashCan val + a murky copy (seed 55).
+# The murky TEST sets (data/turbid_tests, seed 99/98) are never used for training or selection.
+path: C:/Users/Adith
+train:
+  - Downloads/yolo/images/train
+  - sagar-netra/data/seaclear_yolo640/images/train
+  - sagar-netra/data/turbid_train/images/trashcan
+  - sagar-netra/data/turbid_train/images/seaclear
+val:
+  - Downloads/yolo/images/val
+  - sagar-netra/data/turbid_select/images/trashcan_val
+
+nc: 22
+names:
+  0: rov
+  1: plant
+  2: animal_fish
+  3: animal_starfish
+  4: animal_shells
+  5: animal_crab
+  6: animal_eel
+  7: animal_etc
+  8: trash_clothing
+  9: trash_pipe
+  10: trash_bottle
+  11: trash_bag
+  12: trash_snack_wrapper
+  13: trash_can
+  14: trash_cup
+  15: trash_container
+  16: trash_unknown_instance
+  17: trash_branch
+  18: trash_wreckage
+  19: trash_tarp
+  20: trash_rope
+  21: trash_net
